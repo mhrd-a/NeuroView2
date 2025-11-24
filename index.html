@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eye Tracking Analysis Tool</title>
+  <link rel="icon" href="fav.png" type="image/png" />
+  <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20;
+      padding: 0;
+      background: #6A0DAD;
+    }
+    .header {
+      text-align: center;
+      margin: 0px 0 0px 0;
+      color: #6A0DAD;
+    }
+    .header img {
+      max-width: 100px;
+      height: auto;
+      margin-bottom: -15px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    input[type="url"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    input:focus,
+    select:focus {
+      outline: 2px solid #007bff;
+      border: 1px solid #007bff;
+    }
+    small {
+      display: block;
+      margin-top: 4px;
+      color: #666;
+      font-size: 0.85em;
+    }
+    .btn {
+      padding: 12px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 1rem;
+      flex-grow: 1;
+    }
+    .btn-secondary {
+        background: #6c757d;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+    .btn:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    .hidden {
+      display: none;
+    }
+    .fullscreen-bg, .background-frame {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      object-fit: contain;
+      border: none;
+    }
+    .status-info {
+      color: #007bff;
+    }
+    .status-success {
+      color: #28a745;
+    }
+    .status-warning {
+      color: #dc3545;
+    }
+    .fullscreen-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .calibration-point {
+      position: fixed;
+      width: 30px;
+      height: 30px;
+      background: red;
+      border-radius: 50%;
+      z-index: 1100;
+      cursor: pointer;
+    }
+    .gaze-dot {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: rgba(255, 0, 0, 0.8);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1500;
+    }
+    .timer {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      z-index: 2000;
+    }
+    #status-display {
+      text-align: center;
+    }
+    .instructions {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .instructions img {
+      max-width: 100%;
+      height: auto;
+      margin: 20px 0;
+    }
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    /* Consent Modal Styles */
+    #consent-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .consent-content {
+      background: white;
+      color: #333;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 650px;
+      max-height: 90vh;
+      overflow-y: auto;
+      text-align: justify;
+    }
+    .consent-content h2 {
+      margin-top: 0;
+    }
+    .consent-content h3 {
+        margin-top: 1em;
+    }
+    .consent-content ul {
+        padding-left: 20px;
+    }
+    .consent-content li {
+        margin-bottom: 10px;
+    }
+    .consent-content button {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px;
+      font-size: 1.1rem;
+    }
+    .consent-checkbox {
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+    }
+    .consent-checkbox input {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="consent-modal">
+    <div class="consent-content">
+  
+      <p>We are asking you to take part in a research study being conducted by
+        <strong>Mehrdad Alikhani</strong>, <strong>Farinoosh Zarinmakan</strong>, and
+        <strong>Dr. John B. Ford</strong> at <strong>Old Dominion University</strong>.
+      </p>
+  
+      <p>If you choose to participate, you will complete a short computer-based activity that uses your webcam
+        to estimate your eye movements while viewing four simulated crowdfunding webpages. This study will help
+        us learn more about how people pay attention to different types of information (creator and crowd signals)
+        when making funding decisions on crowdfunding platforms. The session will take about <strong>5–10 minutes</strong> to complete.
+      </p>
+  
+      <p>You may skip any part of the activity or stop at any time. The study is anonymous,
+        and no one will be able to link your responses or gaze data back to you. Please do not provide your name
+        or any information that could identify you. The webcam is used only to estimate gaze position and
+        does <strong>not record or store any video</strong>.
+      </p>
+  
+      <p>If you have any questions about this study, please contact
+        Mehrdad Alikhani at <a href="mailto:malik001@odu.edu">malik001@odu.edu</a>.
+        If you have questions or concerns about your rights as a research participant, you may contact the
+        ODU Social &amp; Behavioral Human Subjects Research Exempt Committee Chair,
+        Dr. Randy Gainey, at <a href="mailto:rgainey@odu.edu">rgainey@odu.edu</a>
+        or 757-683-4794, or the Old Dominion University Division of Research and Economic Development
+        at 757-683-3460.
+      </p>
+  
+      <p>Participation in this study is <strong>voluntary</strong>. If you wish to take part, please check the box below and click
+        <strong>“I Agree to Participate”</strong> to begin.
+      </p>
+  
+      <div class="consent-checkbox">
+        <input type="checkbox" id="consent-checkbox" />
+        <label for="consent-checkbox">
+          I have read the information above and voluntarily agree to participate in this research study.
+        </label>
+      </div>
+      
+      <button id="agree-button" class="btn" disabled>I Agree to Participate</button>
+    </div>
+  </div>
+  <div class="container hidden">
+    <div class="header">
+      <img src="logo.png" alt="Logo" />
+      <h1>Eye Tracking Analysis</h1>
+    </div>
+   
+    <div id="setup-phase">
+      <h2>Setup Your Test</h2>
+      <div class="input-group">
+        <label for="testerAge">🎂 Age:</label>
+        <input type="number" id="testerAge" placeholder="Enter your age" min="1" max="120" required />
+      </div>
+      <div class="input-group">
+        <label for="testerGender">🚻 Gender:</label>
+        <select id="testerGender" required>
+          <option value="" disabled selected>Select your gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="testerEducation">🎓 Education Level:</label>
+        <select id="testerEducation" required>
+          <option value="" disabled selected>Select your education level</option>
+          <option value="less">Less than Undergraduate</option>
+          <option value="undergrad">Undergraduate</option>
+          <option value="grad">Graduate</option>
+          <option value="more">Post-Graduate or Higher</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="testerNationality">🌍 Nationality:</label>
+        <select id="testerNationality" required>
+          <option value="" disabled selected>Select your nationality</option>
+          <option value="afghan">Afghan</option>
+          <option value="albanian">Albanian</option>
+          <option value="algerian">Algerian</option>
+          <option value="american">American</option>
+          <option value="andorran">Andorran</option>
+          <option value="angolan">Angolan</option>
+          <option value="anguillan">Anguillan</option>
+          <option value="antiguan">Antiguan and Barbudan</option>
+          <option value="argentine">Argentine</option>
+          <option value="armenian">Armenian</option>
+          <option value="aruban">Aruban</option>
+          <option value="australian">Australian</option>
+          <option value="austrian">Austrian</option>
+          <option value="azerbaijani">Azerbaijani</option>
+          <option value="bahamian">Bahamian</option>
+          <option value="bahraini">Bahraini</option>
+          <option value="bangladeshi">Bangladeshi</option>
+          <option value="barbadian">Barbadian</option>
+          <option value="belarusian">Belarusian</option>
+          <option value="belgian">Belgian</option>
+          <option value="belizean">Belizean</option>
+          <option value="beninese">Beninese</option>
+          <option value="bermudian">Bermudian</option>
+          <option value="bhutanese">Bhutanese</option>
+          <option value="bolivian">Bolivian</option>
+          <option value="bosnian">Bosnian and Herzegovinian</option>
+          <option value="botswanan">Botswanan</option>
+          <option value="brazilian">Brazilian</option>
+          <option value="british">British</option>
+          <option value="bruneian">Bruneian</option>
+          <option value="bulgarian">Bulgarian</option>
+          <option value="burkinabe">Burkinabe</option>
+          <option value="burundian">Burundian</option>
+          <option value="cambodian">Cambodian</option>
+          <option value="cameroonian">Cameroonian</option>
+          <option value="canadian">Canadian</option>
+          <option value="cape_verdean">Cape Verdean</option>
+          <option value="caymanian">Caymanian</option>
+          <option value="central_african">Central African</option>
+          <option value="chadian">Chadian</option>
+          <option value="chilean">Chilean</option>
+          <option value="chinese">Chinese</option>
+          <option value="colombian">Colombian</option>
+          <option value="comoran">Comoran</option>
+          <option value="congolese">Congolese</option>
+          <option value="costa_rican">Costa Rican</option>
+          <option value="croatian">Croatian</option>
+          <option value="cuban">Cuban</option>
+          <option value="cypriot">Cypriot</option>
+          <option value="czech">Czech</option>
+          <option value="danish">Danish</option>
+          <option value="djiboutian">Djiboutian</option>
+          <option value="dominican">Dominican</option>
+          <option value="dutch">Dutch</option>
+          <option value="east_timorese">East Timorese</option>
+          <option value="ecuadorean">Ecuadorean</option>
+          <option value="egyptian">Egyptian</option>
+          <option value="emirati">Emirati</option>
+          <option value="equatorial_guinean">Equatorial Guinean</option>
+          <option value="eritrean">Eritrean</option>
+          <option value="estonian">Estonian</option>
+          <option value="eswatini">Eswatini</option>
+          <option value="ethiopian">Ethiopian</option>
+          <option value="fijian">Fijian</option>
+          <option value="filipino">Filipino</option>
+          <option value="finnish">Finnish</option>
+          <option value="french">French</option>
+          <option value="gabonese">Gabonese</option>
+          <option value="gambian">Gambian</option>
+          <option value="georgian">Georgian</option>
+          <option value="german">German</option>
+          <option value="ghanaian">Ghanaian</option>
+          <option value="greek">Greek</option>
+          <option value="grenadian">Grenadian</option>
+          <option value="guatemalan">Guatemalan</option>
+          <option value="guinean">Guinean</option>
+          <option value="guyanese">Guyanese</option>
+          <option value="haitian">Haitian</option>
+          <option value="honduran">Honduran</option>
+          <option value="hungarian">Hungarian</option>
+          <option value="icelandic">Icelandic</option>
+          <option value="indian">Indian</option>
+          <option value="indonesian">Indonesian</option>
+          <option value="iranian">Iranian</option>
+          <option value="iraqi">Iraqi</option>
+          <option value="irish">Irish</option>
+          <option value="israeli">Israeli</option>
+          <option value="italian">Italian</option>
+          <option value="ivorian">Ivorian</option>
+          <option value="jamaican">Jamaican</option>
+          <option value="japanese">Japanese</option>
+          <option value="jordanian">Jordanian</option>
+          <option value="kazakh">Kazakh</option>
+          <option value="kenyan">Kenyan</option>
+          <option value="kiribati">Kiribati</option>
+          <option value="kuwaiti">Kuwaiti</option>
+          <option value="kyrgyz">Kyrgyz</option>
+          <option value="lao">Lao</option>
+          <option value="latvian">Latvian</option>
+          <option value="lebanese">Lebanese</option>
+          <option value="liberian">Liberian</option>
+          <option value="libyan">Libyan</option>
+          <option value="liechtensteiner">Liechtensteiner</option>
+          <option value="lithuanian">Lithuanian</option>
+          <option value="luxembourger">Luxembourger</option>
+          <option value="macedonian">Macedonian</option>
+          <option value="malagasy">Malagasy</option>
+          <option value="malawian">Malawian</option>
+          <option value="malaysian">Malaysian</option>
+          <option value="maldivian">Maldivian</option>
+          <option value="malian">Malian</option>
+          <option value="maltese">Maltese</option>
+          <option value="marshallese">Marshallese</option>
+          <option value="mauritanian">Mauritanian</option>
+          <option value="mauritian">Mauritian</option>
+          <option value="mexican">Mexican</option>
+          <option value="micronesian">Micronesian</option>
+          <option value="moldovan">Moldovan</option>
+          <option value="monegasque">Monegasque</option>
+          <option value="mongolian">Mongolian</option>
+          <option value="montenegrin">Montenegrin</option>
+          <option value="moroccan">Moroccan</option>
+          <option value="mosotho">Mosotho</option>
+          <option value="mozambican">Mozambican</option>
+          <option value="namibian">Namibian</option>
+          <option value="nauruan">Nauruan</option>
+          <option value="nepalese">Nepalese</option>
+          <option value="new_zealander">New Zealander</option>
+          <option value="nicaraguan">Nicaraguan</option>
+          <option value="nigerien">Nigerien</option>
+          <option value="nigerian">Nigerian</option>
+          <option value="niuean">Niuean</option>
+          <option value="north_korean">North Korean</option>
+          <option value="norwegian">Norwegian</option>
+          <option value="omani">Omani</option>
+          <option value="pakistani">Pakistani</option>
+          <option value="palauan">Palauan</option>
+          <option value="panamanian">Panamanian</option>
+          <option value="papua_new_guinean">Papua New Guinean</option>
+          <option value="paraguayan">Paraguayan</option>
+          <option value="peruvian">Peruvian</option>
+          <option value="filipino">Filipino</option>
+          <option value="polish">Polish</option>
+          <option value="portuguese">Portuguese</option>
+          <option value="qatari">Qatari</option>
+          <option value="romanian">Romanian</option>
+          <option value="russian">Russian</option>
+          <option value="rwandan">Rwandan</option>
+          <option value="saint_lucian">Saint Lucian</option>
+          <option value="salvadoran">Salvadoran</option>
+          <option value="samoan">Samoan</option>
+          <option value="san_marinese">San Marinese</option>
+          <option value="sao_tomean">Sao Tomean</option>
+          <option value="saudi">Saudi</option>
+          <option value="senegalese">Senegalese</option>
+          <option value="serbian">Serbian</option>
+          <option value="seychellois">Seychellois</option>
+          <option value="sierra_leonean">Sierra Leonean</option>
+          <option value="singaporean">Singaporean</option>
+          <option value="slovak">Slovak</option>
+          <option value="slovenian">Slovenian</option>
+          <option value="solomon_islander">Solomon Islander</option>
+          <option value="somali">Somali</option>
+          <option value="south_african">South African</option>
+          <option value="south_sudanese">South Sudanese</option>
+          <option value="spanish">Spanish</option>
+          <option value="sri_lankan">Sri Lankan</option>
+          <option value="sudanese">Sudanese</option>
+          <option value="surinamese">Surinamese</option>
+          <option value="swazi">Swazi</option>
+          <option value="swedish">Swedish</option>
+          <option value="swiss">Swiss</option>
+          <option value="syrian">Syrian</option>
+          <option value="taiwanese">Taiwanese</option>
+          <option value="tajik">Tajik</option>
+          <option value="tanzanian">Tanzanian</option>
+          <option value="thai">Thai</option>
+          <option value="togolese">Togolese</option>
+          <option value="tongan">Tongan</option>
+          <option value="trinidadian">Trinidadian and Tobagonian</option>
+          <option value="tunisian">Tunisian</option>
+          <option value="turkish">Turkish</option>
+          <option value="turkmen">Turkmen</option>
+          <option value="tuvaluan">Tuvaluan</option>
+          <option value="ugandan">Ugandan</option>
+          <option value="ukrainian">Ukrainian</option>
+          <option value="uruguayan">Uruguayan</option>
+          <option value="uzbek">Uzbek</option>
+          <option value="vanuatuan">Vanuatuan</option>
+          <option value="venezuelan">Venezuelan</option>
+          <option value="vietnamese">Vietnamese</option>
+          <option value="yemeni">Yemeni</option>
+          <option value="zambian">Zambian</option>
+          <option value="zimbabwean">Zimbabwean</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="imageUrl">🌐 Image or Website URL (optional):</label>
+        <input type="url" id="imageUrl" placeholder="https://example.com" pattern="https?://.+" title="Must be a valid URL" />
+        <small>Use a direct image link or a webpage address.</small>
+      </div>
+      <div class="input-group">
+        <label for="imageFile">🖼️ Or Upload an Image File:</label>
+        <input type="file" id="imageFile" accept="image/*" title="Upload a local image file" />
+        <small>JPEG, PNG, GIF supported.</small>
+      </div>
+      <div class="input-group">
+        <label for="durationInput">⏱️ Tracking Duration (seconds):</label>
+        <input type="number" id="durationInput" value="30" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
+        <small>Recommended: 30–60 seconds</small>
+      </div>
+      <div class="input-group">
+        <button class="btn" onclick="showInstructions()">Start Eye Tracking</button>
+      </div>
+    </div>
+    <div id="instructions-phase" class="instructions hidden">
+    <h2 style="line-height: 1.2; margin: 0 0 4px 0;">How Eye Tracking Works</h2>
+    <p style="line-height: 1.2; margin: 0;">This tool uses your webcam to track your eye movements.</p>
+    <p style="line-height: 1.2; margin: 0;">Follow these steps to ensure accurate tracking:</p>
+      <img src="Instruction.jpg" alt="Eye Tracking Instructions" />
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="goBackToSetup()">Back</button>
+        <button class="btn" onclick="startEyeTracking()">Start Calibration</button>
+      </div>
+    </div>
+    <div id="new-test-phase" class="instructions hidden">
+      <h2>New Eye Tracking Test</h2>
+      <p>Enter a new image or website URL to start another test.</p>
+      <div class="input-group">
+        <label for="newImageUrl">🌐 Image or Website URL (optional):</label>
+        <input type="url" id="newImageUrl" placeholder="https://example.com" pattern="https?://.+" title="Must be a valid URL" />
+        <small>Use a direct image link or a webpage address.</small>
+      </div>
+      <div class="input-group">
+        <label for="newImageFile">🖼️ Or Upload an Image File:</label>
+        <input type="file" id="newImageFile" accept="image/*" title="Upload a local image file" />
+        <small>JPEG, PNG, GIF supported.</small>
+      </div>
+      <div class="input-group">
+        <label for="newDurationInput">⏱️ Tracking Duration (seconds):</label>
+        <input type="number" id="newDurationInput" value="30" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
+        <small>Recommended: 30–60 seconds</small>
+      </div>
+      <div class="input-group">
+        <button class="btn" onclick="startNewTest()">Start New Test</button>
+      </div>
+    </div>
+    <div id="status-display" class="hidden">
+      <div id="status-message" class="status-info">Preparing Calibration...</div>
+      <div id="download-group" class="input-group hidden">
+        <button class="btn" onclick="downloadResults()">Download Results</button>
+      </div>
+      <div id="thank-you" class="input-group hidden">
+        <p>Thank you for completing the eye tracking test!</p>
+        <div class="button-group">
+          <button class="btn btn-secondary" onclick="goToHome()">Go to Home Page</button>
+          <button class="btn" onclick="showNewTest()">Do Another Test</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.onload = function() {
+        const consentModal = document.getElementById('consent-modal');
+        const agreeButton = document.getElementById('agree-button');
+        const consentCheckbox = document.getElementById('consent-checkbox');
+        const mainContainer = document.querySelector('.container');
+        agreeButton.disabled = true; // Initially disable the button
+        consentCheckbox.addEventListener('change', function() {
+            agreeButton.disabled = !this.checked; // Enable button only when checkbox is checked
+        });
+        agreeButton.onclick = function() {
+            if (!agreeButton.disabled) {
+                consentModal.style.display = 'none';
+                mainContainer.classList.remove('hidden');
+            }
+        };
+    };
+    let gazeData = [],
+        trackingActive = false,
+        currentImage = null,
+        currentIframe = null,
+        trackingDuration = 30,
+        startTime = null,
+        timerInterval = null,
+        testTakerName = '',
+        testTakerAge = '',
+        testTakerGender = '',
+        testTakerEducation = '',
+        testTakerNationality = '',
+        isWebGazerInitialized = false;
+    function showInstructions() {
+      document.getElementById('setup-phase').classList.add('hidden');
+      document.getElementById('instructions-phase').classList.remove('hidden');
+    }
+   
+    function goBackToSetup() {
+        document.getElementById('instructions-phase').classList.add('hidden');
+        document.getElementById('setup-phase').classList.remove('hidden');
+    }
+    function showNewTest() {
+      document.getElementById('status-display').classList.add('hidden');
+      document.getElementById('thank-you').classList.add('hidden');
+      document.getElementById('download-group').classList.add('hidden');
+      document.getElementById('new-test-phase').classList.remove('hidden');
+    }
+    function goToHome() {
+      document.getElementById('status-display').classList.add('hidden');
+      document.getElementById('thank-you').classList.add('hidden');
+      document.getElementById('download-group').classList.add('hidden');
+      document.getElementById('setup-phase').classList.remove('hidden');
+      document.getElementById('testerName').value = '';
+      document.getElementById('testerAge').value = '';
+      document.getElementById('testerGender').value = '';
+      document.getElementById('testerEducation').value = '';
+      document.getElementById('testerNationality').value = '';
+      document.getElementById('imageUrl').value = '';
+      document.getElementById('imageFile').value = '';
+      document.getElementById('durationInput').value = '30';
+      if (currentImage) currentImage.remove();
+      if (currentIframe) currentIframe.remove();
+      webgazer.end();
+      isWebGazerInitialized = false;
+    }
+    async function startEyeTracking() {
+      testTakerName = document.getElementById('testerName').value.trim() || 'unknown';
+      testTakerAge = document.getElementById('testerAge').value || 'unknown';
+      testTakerGender = document.getElementById('testerGender').value || 'unknown';
+      testTakerEducation = document.getElementById('testerEducation').value || 'unknown';
+      testTakerNationality = document.getElementById('testerNationality').value || 'unknown';
+      const imageUrl = document.getElementById('imageUrl').value;
+      const imageFile = document.getElementById('imageFile').files[0];
+      trackingDuration = parseInt(document.getElementById('durationInput').value);
+      if (!imageUrl && !imageFile) {
+        alert('Please provide a URL or upload an image file.');
+        return;
+      }
+      document.getElementById('instructions-phase').classList.add('hidden');
+      document.getElementById('status-display').classList.remove('hidden');
+      updateStatus('Loading background...', 'status-info');
+      try {
+        await loadBackground(imageUrl, imageFile);
+        updateStatus('Preparing WebGazer...', 'status-info');
+        if (!isWebGazerInitialized) {
+          await initializeWebGazer();
+          isWebGazerInitialized = true;
+        } else {
+          webgazer.resume();
+        }
+        updateStatus('Starting calibration...', 'status-info');
+        await startCalibration();
+        updateStatus('Tracking in progress...', 'status-success');
+        beginTracking();
+      } catch (error) {
+        console.error('Error:', error);
+        updateStatus('Error: ' + error.message, 'status-warning');
+      }
+    }
+    async function startNewTest() {
+      const imageUrl = document.getElementById('newImageUrl').value;
+      const imageFile = document.getElementById('newImageFile').files[0];
+      trackingDuration = parseInt(document.getElementById('newDurationInput').value);
+      if (!imageUrl && !imageFile) {
+        alert('Please provide a URL or upload an image file.');
+        return;
+      }
+      document.getElementById('new-test-phase').classList.add('hidden');
+      document.getElementById('status-display').classList.remove('hidden');
+      updateStatus('Loading background...', 'status-info');
+      try {
+        await loadBackground(imageUrl, imageFile);
+        updateStatus('Preparing WebGazer...', 'status-info');
+        if (!isWebGazerInitialized) {
+          await initializeWebGazer();
+          isWebGazerInitialized = true;
+        } else {
+          webgazer.resume();
+        }
+        updateStatus('Tracking in progress...', 'status-success');
+        beginTracking();
+      } catch (error) {
+        console.error('Error:', error);
+        updateStatus('Error: ' + error.message, 'status-warning');
+      }
+    }
+    function loadBackground(url, file) {
+      return new Promise((resolve, reject) => {
+        if (currentImage) currentImage.remove();
+        if (currentIframe) currentIframe.remove();
+        if (file) {
+          const img = new Image();
+          img.className = 'fullscreen-bg';
+          img.onload = () => {
+            currentImage = img;
+            document.body.appendChild(img);
+            resolve();
+          };
+          img.onerror = () => reject(new Error('Failed to load image'));
+          const reader = new FileReader();
+          reader.onload = (e) => img.src = e.target.result;
+          reader.readAsDataURL(file);
+        } else if (url) {
+          const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp)$/i;
+          if (imageExtensions.test(url)) {
+            const img = new Image();
+            img.className = 'fullscreen-bg';
+            img.onload = () => {
+              currentImage = img;
+              document.body.appendChild(img);
+              resolve();
+            };
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.crossOrigin = 'anonymous';
+            img.src = url;
+          } else {
+            const iframe = document.createElement('iframe');
+            iframe.className = 'background-frame';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            iframe.onload = () => {
+              currentIframe = iframe;
+              resolve();
+            };
+            iframe.onerror = () => reject(new Error('Failed to load webpage'));
+          }
+        }
+      });
+    }
+    function initializeWebGazer() {
+      return new Promise((resolve, reject) => {
+        webgazer
+          .setGazeListener((data, timestamp) => {
+            if (trackingActive && data) {
+              recordGazeData(data.x, data.y, timestamp);
+              drawGazeDot(data.x, data.y);
+            }
+          })
+          .begin()
+          .then(() => webgazer.showVideoPreview(false).showPredictionPoints(false) && resolve())
+          .catch(reject);
+      });
+    }
+    function startCalibration() {
+      return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'fullscreen-overlay';
+        if (currentImage) {
+          overlay.style.backgroundImage = `url(${currentImage.src})`;
+          overlay.style.backgroundSize = 'contain';
+          overlay.style.backgroundRepeat = 'no-repeat';
+          overlay.style.backgroundPosition = 'center center';
+        }
+        overlay.innerHTML = `
+          <h2>Calibration</h2>
+          <p>Click on each red dot to calibrate.</p>
+          <p>Preparing to start eye tracking...</p>`;
+        document.body.appendChild(overlay);
+        setTimeout(() => {
+          performCalibration(overlay, resolve);
+        }, 1000);
+      });
+    }
+    function performCalibration(overlay, resolve) {
+      const points = [
+        ['10%', '10%'], ['50%', '10%'], ['90%', '10%'],
+        ['10%', '50%'], ['50%', '50%'], ['90%', '50%'],
+        ['10%', '90%'], ['50%', '90%'], ['90%', '90%']
+      ];
+      let i = 0;
+      function next() {
+        if (i >= points.length) {
+          overlay.remove();
+          return resolve();
+        }
+        const point = document.createElement('div');
+        point.className = 'calibration-point';
+        point.style.left = points[i][0];
+        point.style.top = points[i][1];
+        point.style.transform = 'translate(-50%, -50%)';
+        point.onclick = () => {
+          point.remove();
+          i++;
+          setTimeout(next, 500);
+        };
+        document.body.appendChild(point);
+      }
+      next();
+    }
+    function beginTracking() {
+      trackingActive = true;
+      startTime = Date.now();
+      gazeData = [];
+      document.querySelector('.container').style.display = 'none';
+      setTimeout(() => {
+        document.getElementById('status-display').classList.add('hidden');
+      }, 3000);
+      const timer = document.createElement('div');
+      timer.className = 'timer';
+      timer.id = 'tracking-timer';
+      document.body.appendChild(timer);
+      let remaining = trackingDuration;
+      timer.textContent = `${remaining}s`;
+      timerInterval = setInterval(() => {
+        remaining--;
+        timer.textContent = `${remaining}s`;
+        if (remaining <= 0) stopTracking();
+      }, 1000);
+    }
+    function stopTracking() {
+      trackingActive = false;
+      clearInterval(timerInterval);
+      document.getElementById('tracking-timer').remove();
+      webgazer.pause();
+      document.querySelector('.container').style.display = 'block';
+      document.getElementById('status-display').classList.remove('hidden');
+      document.getElementById('download-group').classList.remove('hidden');
+      document.getElementById('thank-you').classList.remove('hidden');
+      updateStatus('Tracking successfully done', 'status-success');
+    }
+    function downloadResults() {
+      generateExcelFile();
+      generateHeatmap('simple');
+      generateHeatmap('timing');
+      generateHeatmap('density');
+    }
+    function recordGazeData(x, y, timestamp) {
+      gazeData.push({
+        timestamp,
+        x: Math.round(x),
+        y: Math.round(y),
+        relative: Date.now() - startTime,
+        name: testTakerName,
+        age: testTakerAge,
+        gender: testTakerGender,
+        education: testTakerEducation,
+        nationality: testTakerNationality
+      });
+    }
+    function drawGazeDot(x, y) {
+      const dot = document.createElement('div');
+      dot.className = 'gaze-dot';
+      dot.style.left = `${x - 4}px`;
+      dot.style.top = `${y - 4}px`;
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 200);
+    }
+    function generateExcelFile() {
+      const data = gazeData.map((g, i) => ({
+        Index: i + 1,
+        Name: g.name,
+        Age: g.age,
+        Gender: g.gender,
+        Education: g.education,
+        Nationality: g.nationality,
+        Timestamp: g.timestamp,
+        X: g.x,
+        Y: g.y,
+        'Relative Time (ms)': g.relative
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Gaze Data');
+      XLSX.writeFile(wb, `gaze_data_${testTakerName}.xlsx`);
+    }
+    function generateHeatmap(type) {
+      const canvas = document.createElement('canvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext('2d');
+      if (currentImage) {
+        ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      let filename;
+      switch (type) {
+        case 'simple':
+          ctx.globalAlpha = 0.3;
+          ctx.fillStyle = 'red';
+          gazeData.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+            ctx.fill();
+          });
+          filename = `heatmap_simple_${testTakerName}.png`;
+          break;
+        case 'timing':
+          ctx.globalAlpha = 0.3;
+          gazeData.forEach((p, i) => {
+            let progress = i / (gazeData.length - 1);
+            let r, g, b = 0;
+            if (progress <= 0.5) {
+              r = Math.round(255 * (progress / 0.5));
+              g = 255;
+            } else {
+              r = 255;
+              g = Math.round(255 * (1 - (progress - 0.5) / 0.5));
+            }
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+            ctx.fill();
+          });
+          filename = `heatmap_timing_${testTakerName}.png`;
+          break;
+        case 'density':
+          const dcanvas = document.createElement('canvas');
+          dcanvas.width = canvas.width;
+          dcanvas.height = canvas.height;
+          const dctx = dcanvas.getContext('2d');
+          dctx.fillStyle = 'black';
+          dctx.globalAlpha = 0.02;
+          gazeData.forEach(p => {
+            dctx.beginPath();
+            dctx.arc(p.x, p.y, 50, 0, 2 * Math.PI);
+            dctx.fill();
+          });
+          let imageData = dctx.getImageData(0, 0, canvas.width, canvas.height);
+          let data = imageData.data;
+          let max_alpha = 0;
+          for (let i = 3; i < data.length; i += 4) {
+            if (data[i] > max_alpha) max_alpha = data[i];
+          }
+          if (max_alpha === 0) max_alpha = 1;
+          for (let i = 0; i < data.length; i += 4) {
+            let alpha = data[i + 3];
+            if (alpha > 0) {
+              let norm = alpha / max_alpha;
+              let r, g, b = 0;
+              if (norm <= 0.5) {
+                r = Math.round(255 * (norm / 0.5));
+                g = 255;
+              } else {
+                r = 255;
+                g = Math.round(255 * (1 - (norm - 0.5) / 0.5));
+              }
+              data[i] = r;
+              data[i + 1] = g;
+              data[i + 2] = b;
+              data[i + 3] = Math.round(128 + 127 * norm);
+            }
+          }
+          dctx.putImageData(imageData, 0, 0);
+          ctx.drawImage(dcanvas, 0, 0);
+          filename = `heatmap_density_${testTakerName}.png`;
+          break;
+      }
+      canvas.toBlob(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+      });
+    }
+    function updateStatus(msg, className) {
+      const status = document.getElementById('status-message');
+      status.textContent = msg;
+      status.className = className;
+    }
+  </script>
+</body>
+</html>
