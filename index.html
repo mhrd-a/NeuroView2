@@ -73,13 +73,13 @@
       flex-grow: 1;
     }
     .btn-secondary {
-        background: #6c757d;
+      background: #6c757d;
     }
     .btn:hover {
       background: #0056b3;
     }
     .btn-secondary:hover {
-        background: #5a6268;
+      background: #5a6268;
     }
     .btn:disabled {
       background: #cccccc;
@@ -166,9 +166,9 @@
       margin: 20px 0;
     }
     .button-group {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
     }
     /* Consent Modal Styles */
     #consent-modal {
@@ -195,13 +195,13 @@
       margin-top: 0;
     }
     .consent-content h3 {
-        margin-top: 1em;
+      margin-top: 1em;
     }
     .consent-content ul {
-        padding-left: 20px;
+      padding-left: 20px;
     }
     .consent-content li {
-        margin-bottom: 10px;
+      margin-bottom: 10px;
     }
     .consent-content button {
       display: block;
@@ -221,26 +221,26 @@
   </style>
 </head>
 <body>
+  <!-- CONSENT MODAL -->
   <div id="consent-modal">
     <div class="consent-content">
-  
       <p>We are asking you to take part in a research study being conducted by
         <strong>Mehrdad Alikhani</strong>, <strong>Farinoosh Zarinmakan</strong>, and
         <strong>Dr. John B. Ford</strong> at <strong>Old Dominion University</strong>.
       </p>
-  
+
       <p>If you choose to participate, you will complete a short computer-based activity that uses your webcam
         to estimate your eye movements while viewing four simulated crowdfunding webpages. This study will help
         us learn more about how people pay attention to different types of information (creator and crowd signals)
         when making funding decisions on crowdfunding platforms. The session will take about <strong>5–10 minutes</strong> to complete.
       </p>
-  
+
       <p>You may skip any part of the activity or stop at any time. The study is anonymous,
         and no one will be able to link your responses or gaze data back to you. Please do not provide your name
         or any information that could identify you. The webcam is used only to estimate gaze position and
         does <strong>not record or store any video</strong>.
       </p>
-  
+
       <p>If you have any questions about this study, please contact
         Mehrdad Alikhani at <a href="mailto:malik001@odu.edu">malik001@odu.edu</a>.
         If you have questions or concerns about your rights as a research participant, you may contact the
@@ -249,27 +249,30 @@
         or 757-683-4794, or the Old Dominion University Division of Research and Economic Development
         at 757-683-3460.
       </p>
-  
+
       <p>Participation in this study is <strong>voluntary</strong>. If you wish to take part, please check the box below and click
         <strong>“I Agree to Participate”</strong> to begin.
       </p>
-  
+
       <div class="consent-checkbox">
         <input type="checkbox" id="consent-checkbox" />
         <label for="consent-checkbox">
           I have read the information above and voluntarily agree to participate in this research study.
         </label>
       </div>
-      
+
       <button id="agree-button" class="btn" disabled>I Agree to Participate</button>
     </div>
   </div>
+
+  <!-- MAIN CONTAINER -->
   <div class="container hidden">
     <div class="header">
       <img src="logo.png" alt="Logo" />
       <h1>Eye Tracking Analysis</h1>
     </div>
-   
+
+    <!-- SETUP PHASE -->
     <div id="setup-phase">
       <h2>Setup Your Test</h2>
       <div class="input-group">
@@ -282,6 +285,7 @@
           <option value="" disabled selected>Select your gender</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
+          <option value="other">Other / Prefer not to say</option>
         </select>
       </div>
       <div class="input-group">
@@ -439,7 +443,6 @@
           <option value="papua_new_guinean">Papua New Guinean</option>
           <option value="paraguayan">Paraguayan</option>
           <option value="peruvian">Peruvian</option>
-          <option value="filipino">Filipino</option>
           <option value="polish">Polish</option>
           <option value="portuguese">Portuguese</option>
           <option value="qatari">Qatari</option>
@@ -494,48 +497,36 @@
           <option value="zimbabwean">Zimbabwean</option>
         </select>
       </div>
-      <div class="input-group">
-        <label for="imageUrl">🌐 Image or Website URL (optional):</label>
-        <input type="url" id="imageUrl" placeholder="https://example.com" pattern="https?://.+" title="Must be a valid URL" />
-        <small>Use a direct image link or a webpage address.</small>
-      </div>
-      <div class="input-group">
-        <label for="imageFile">🖼️ Or Upload an Image File:</label>
-        <input type="file" id="imageFile" accept="image/*" title="Upload a local image file" />
-        <small>JPEG, PNG, GIF supported.</small>
-      </div>
+
+      <!-- NO URL / FILE INPUTS ANYMORE -->
+
       <div class="input-group">
         <label for="durationInput">⏱️ Tracking Duration (seconds):</label>
         <input type="number" id="durationInput" value="30" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
         <small>Recommended: 30–60 seconds</small>
       </div>
+
       <div class="input-group">
         <button class="btn" onclick="showInstructions()">Start Eye Tracking</button>
       </div>
     </div>
+
+    <!-- INSTRUCTIONS PHASE -->
     <div id="instructions-phase" class="instructions hidden">
-    <h2 style="line-height: 1.2; margin: 0 0 4px 0;">How Eye Tracking Works</h2>
-    <p style="line-height: 1.2; margin: 0;">This tool uses your webcam to track your eye movements.</p>
-    <p style="line-height: 1.2; margin: 0;">Follow these steps to ensure accurate tracking:</p>
+      <h2 style="line-height: 1.2; margin: 0 0 4px 0;">How Eye Tracking Works</h2>
+      <p style="line-height: 1.2; margin: 0;">This tool uses your webcam to track your eye movements.</p>
+      <p style="line-height: 1.2; margin: 0;">Follow these steps to ensure accurate tracking:</p>
       <img src="Instruction.jpg" alt="Eye Tracking Instructions" />
       <div class="button-group">
         <button class="btn btn-secondary" onclick="goBackToSetup()">Back</button>
         <button class="btn" onclick="startEyeTracking()">Start Calibration</button>
       </div>
     </div>
+
+    <!-- NEW TEST PHASE (no URL/file inputs) -->
     <div id="new-test-phase" class="instructions hidden">
       <h2>New Eye Tracking Test</h2>
-      <p>Enter a new image or website URL to start another test.</p>
-      <div class="input-group">
-        <label for="newImageUrl">🌐 Image or Website URL (optional):</label>
-        <input type="url" id="newImageUrl" placeholder="https://example.com" pattern="https?://.+" title="Must be a valid URL" />
-        <small>Use a direct image link or a webpage address.</small>
-      </div>
-      <div class="input-group">
-        <label for="newImageFile">🖼️ Or Upload an Image File:</label>
-        <input type="file" id="newImageFile" accept="image/*" title="Upload a local image file" />
-        <small>JPEG, PNG, GIF supported.</small>
-      </div>
+      <p>Click "Start New Test" to view a new set of campaign screens.</p>
       <div class="input-group">
         <label for="newDurationInput">⏱️ Tracking Duration (seconds):</label>
         <input type="number" id="newDurationInput" value="30" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
@@ -545,6 +536,8 @@
         <button class="btn" onclick="startNewTest()">Start New Test</button>
       </div>
     </div>
+
+    <!-- STATUS / DOWNLOAD / THANK YOU -->
     <div id="status-display" class="hidden">
       <div id="status-message" class="status-info">Preparing Calibration...</div>
       <div id="download-group" class="input-group hidden">
@@ -559,23 +552,34 @@
       </div>
     </div>
   </div>
+
+  <!-- NEXT / END BUTTON (BOTTOM RIGHT) -->
+  <button id="next-screen-btn"
+          class="btn"
+          style="position: fixed; bottom: 20px; right: 20px; z-index: 3000; display:none;">
+  </button>
+
   <script>
+    // CONSENT MODAL INIT
     window.onload = function() {
-        const consentModal = document.getElementById('consent-modal');
-        const agreeButton = document.getElementById('agree-button');
-        const consentCheckbox = document.getElementById('consent-checkbox');
-        const mainContainer = document.querySelector('.container');
-        agreeButton.disabled = true; // Initially disable the button
-        consentCheckbox.addEventListener('change', function() {
-            agreeButton.disabled = !this.checked; // Enable button only when checkbox is checked
-        });
-        agreeButton.onclick = function() {
-            if (!agreeButton.disabled) {
-                consentModal.style.display = 'none';
-                mainContainer.classList.remove('hidden');
-            }
-        };
+      const consentModal = document.getElementById('consent-modal');
+      const agreeButton = document.getElementById('agree-button');
+      const consentCheckbox = document.getElementById('consent-checkbox');
+      const mainContainer = document.querySelector('.container');
+
+      agreeButton.disabled = true;
+      consentCheckbox.addEventListener('change', function() {
+        agreeButton.disabled = !this.checked;
+      });
+      agreeButton.onclick = function() {
+        if (!agreeButton.disabled) {
+          consentModal.style.display = 'none';
+          mainContainer.classList.remove('hidden');
+        }
+      };
     };
+
+    // GLOBAL STATE
     let gazeData = [],
         trackingActive = false,
         currentImage = null,
@@ -589,64 +593,120 @@
         testTakerEducation = '',
         testTakerNationality = '',
         isWebGazerInitialized = false;
+
+    // Campaign images and order
+    let campaignImages = [
+      "campaign/c01.JPG",
+      "campaign/c02.JPG",
+      "campaign/c03.JPG",
+      "campaign/c04.JPG"
+    ];
+    let campaignOrder = [];
+    let screenIndex = 0;
+
+    // NEXT / END BUTTON
+    const nextBtn = document.getElementById("next-screen-btn");
+
+    function shuffle(array) {
+      let a = array.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function showNextButton() {
+      nextBtn.style.display = "block";
+      nextBtn.textContent = (screenIndex === campaignOrder.length - 1) ? "End" : "Next";
+    }
+
+    nextBtn.onclick = async function () {
+      // If "End" is clicked
+      if (screenIndex === campaignOrder.length - 1) {
+        nextBtn.style.display = "none";
+        stopTracking();
+        return;
+      }
+
+      // Go to next screen
+      screenIndex++;
+      const path = campaignOrder[screenIndex];
+      await loadCampaignScreen(path);
+      showNextButton();
+    };
+
+    // UI navigation helpers
     function showInstructions() {
       document.getElementById('setup-phase').classList.add('hidden');
       document.getElementById('instructions-phase').classList.remove('hidden');
     }
-   
+
     function goBackToSetup() {
-        document.getElementById('instructions-phase').classList.add('hidden');
-        document.getElementById('setup-phase').classList.remove('hidden');
+      document.getElementById('instructions-phase').classList.add('hidden');
+      document.getElementById('setup-phase').classList.remove('hidden');
     }
+
     function showNewTest() {
       document.getElementById('status-display').classList.add('hidden');
       document.getElementById('thank-you').classList.add('hidden');
       document.getElementById('download-group').classList.add('hidden');
       document.getElementById('new-test-phase').classList.remove('hidden');
     }
+
     function goToHome() {
       document.getElementById('status-display').classList.add('hidden');
       document.getElementById('thank-you').classList.add('hidden');
       document.getElementById('download-group').classList.add('hidden');
       document.getElementById('setup-phase').classList.remove('hidden');
-      document.getElementById('testerName').value = '';
+
+      // Reset demographics
       document.getElementById('testerAge').value = '';
       document.getElementById('testerGender').value = '';
       document.getElementById('testerEducation').value = '';
       document.getElementById('testerNationality').value = '';
-      document.getElementById('imageUrl').value = '';
-      document.getElementById('imageFile').value = '';
       document.getElementById('durationInput').value = '30';
-      if (currentImage) currentImage.remove();
-      if (currentIframe) currentIframe.remove();
-      webgazer.end();
-      isWebGazerInitialized = false;
+
+      // Remove background if any
+      if (currentImage) { currentImage.remove(); currentImage = null; }
+      if (currentIframe) { currentIframe.remove(); currentIframe = null; }
+
+      if (typeof webgazer !== 'undefined') {
+        webgazer.end();
+        isWebGazerInitialized = false;
+      }
     }
+
+    // START MAIN TEST
     async function startEyeTracking() {
-      testTakerName = document.getElementById('testerName').value.trim() || 'unknown';
+      // No name field; use generic
+      testTakerName = 'participant';
+
       testTakerAge = document.getElementById('testerAge').value || 'unknown';
       testTakerGender = document.getElementById('testerGender').value || 'unknown';
       testTakerEducation = document.getElementById('testerEducation').value || 'unknown';
       testTakerNationality = document.getElementById('testerNationality').value || 'unknown';
-      const imageUrl = document.getElementById('imageUrl').value;
-      const imageFile = document.getElementById('imageFile').files[0];
-      trackingDuration = parseInt(document.getElementById('durationInput').value);
-      if (!imageUrl && !imageFile) {
-        alert('Please provide a URL or upload an image file.');
-        return;
-      }
+      trackingDuration = parseInt(document.getElementById('durationInput').value) || 30;
+
       document.getElementById('instructions-phase').classList.add('hidden');
       document.getElementById('status-display').classList.remove('hidden');
-      updateStatus('Loading background...', 'status-info');
+      updateStatus('Loading campaign screen...', 'status-info');
+
+      // Random order of 4 campaign images
+      campaignOrder = shuffle(campaignImages);
+      screenIndex = 0;
+
       try {
-        await loadBackground(imageUrl, imageFile);
+        await loadCampaignScreen(campaignOrder[screenIndex]);
         updateStatus('Preparing WebGazer...', 'status-info');
+
         if (!isWebGazerInitialized) {
           await initializeWebGazer();
           isWebGazerInitialized = true;
         } else {
           webgazer.resume();
         }
+
         updateStatus('Starting calibration...', 'status-info');
         await startCalibration();
         updateStatus('Tracking in progress...', 'status-success');
@@ -656,26 +716,29 @@
         updateStatus('Error: ' + error.message, 'status-warning');
       }
     }
+
+    // START NEW TEST (no URL/file, again random campaign order)
     async function startNewTest() {
-      const imageUrl = document.getElementById('newImageUrl').value;
-      const imageFile = document.getElementById('newImageFile').files[0];
-      trackingDuration = parseInt(document.getElementById('newDurationInput').value);
-      if (!imageUrl && !imageFile) {
-        alert('Please provide a URL or upload an image file.');
-        return;
-      }
+      trackingDuration = parseInt(document.getElementById('newDurationInput').value) || 30;
+
       document.getElementById('new-test-phase').classList.add('hidden');
       document.getElementById('status-display').classList.remove('hidden');
-      updateStatus('Loading background...', 'status-info');
+      updateStatus('Loading campaign screen...', 'status-info');
+
+      campaignOrder = shuffle(campaignImages);
+      screenIndex = 0;
+
       try {
-        await loadBackground(imageUrl, imageFile);
+        await loadCampaignScreen(campaignOrder[screenIndex]);
         updateStatus('Preparing WebGazer...', 'status-info');
+
         if (!isWebGazerInitialized) {
           await initializeWebGazer();
           isWebGazerInitialized = true;
         } else {
           webgazer.resume();
         }
+
         updateStatus('Tracking in progress...', 'status-success');
         beginTracking();
       } catch (error) {
@@ -683,49 +746,29 @@
         updateStatus('Error: ' + error.message, 'status-warning');
       }
     }
-    function loadBackground(url, file) {
+
+    // LOAD A CAMPAIGN IMAGE FULLSCREEN
+    function loadCampaignScreen(path) {
       return new Promise((resolve, reject) => {
         if (currentImage) currentImage.remove();
         if (currentIframe) currentIframe.remove();
-        if (file) {
-          const img = new Image();
-          img.className = 'fullscreen-bg';
-          img.onload = () => {
-            currentImage = img;
-            document.body.appendChild(img);
-            resolve();
-          };
-          img.onerror = () => reject(new Error('Failed to load image'));
-          const reader = new FileReader();
-          reader.onload = (e) => img.src = e.target.result;
-          reader.readAsDataURL(file);
-        } else if (url) {
-          const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp)$/i;
-          if (imageExtensions.test(url)) {
-            const img = new Image();
-            img.className = 'fullscreen-bg';
-            img.onload = () => {
-              currentImage = img;
-              document.body.appendChild(img);
-              resolve();
-            };
-            img.onerror = () => reject(new Error('Failed to load image'));
-            img.crossOrigin = 'anonymous';
-            img.src = url;
-          } else {
-            const iframe = document.createElement('iframe');
-            iframe.className = 'background-frame';
-            iframe.src = url;
-            document.body.appendChild(iframe);
-            iframe.onload = () => {
-              currentIframe = iframe;
-              resolve();
-            };
-            iframe.onerror = () => reject(new Error('Failed to load webpage'));
-          }
-        }
+
+        const img = new Image();
+        img.className = 'fullscreen-bg';
+
+        img.onload = () => {
+          currentImage = img;
+          document.body.appendChild(img);
+          resolve();
+        };
+
+        img.onerror = () => reject(new Error('Failed to load campaign image: ' + path));
+
+        img.src = path;
       });
     }
+
+    // WEBGAZER INIT
     function initializeWebGazer() {
       return new Promise((resolve, reject) => {
         webgazer
@@ -736,30 +779,40 @@
             }
           })
           .begin()
-          .then(() => webgazer.showVideoPreview(false).showPredictionPoints(false) && resolve())
+          .then(() => {
+            webgazer.showVideoPreview(false);
+            webgazer.showPredictionPoints(false);
+            resolve();
+          })
           .catch(reject);
       });
     }
+
+    // CALIBRATION
     function startCalibration() {
       return new Promise((resolve) => {
         const overlay = document.createElement('div');
         overlay.className = 'fullscreen-overlay';
+
         if (currentImage) {
           overlay.style.backgroundImage = `url(${currentImage.src})`;
           overlay.style.backgroundSize = 'contain';
           overlay.style.backgroundRepeat = 'no-repeat';
           overlay.style.backgroundPosition = 'center center';
         }
+
         overlay.innerHTML = `
           <h2>Calibration</h2>
           <p>Click on each red dot to calibrate.</p>
           <p>Preparing to start eye tracking...</p>`;
         document.body.appendChild(overlay);
+
         setTimeout(() => {
           performCalibration(overlay, resolve);
         }, 1000);
       });
     }
+
     function performCalibration(overlay, resolve) {
       const points = [
         ['10%', '10%'], ['50%', '10%'], ['90%', '10%'],
@@ -767,7 +820,8 @@
         ['10%', '90%'], ['50%', '90%'], ['90%', '90%']
       ];
       let i = 0;
-      function next() {
+
+      function nextPoint() {
         if (i >= points.length) {
           overlay.remove();
           return resolve();
@@ -780,49 +834,81 @@
         point.onclick = () => {
           point.remove();
           i++;
-          setTimeout(next, 500);
+          setTimeout(nextPoint, 500);
         };
         document.body.appendChild(point);
       }
-      next();
+      nextPoint();
     }
+
+    // START TRACKING
     function beginTracking() {
       trackingActive = true;
       startTime = Date.now();
       gazeData = [];
+
       document.querySelector('.container').style.display = 'none';
       setTimeout(() => {
         document.getElementById('status-display').classList.add('hidden');
       }, 3000);
+
+      // Show Next / End button for first screen
+      showNextButton();
+
       const timer = document.createElement('div');
       timer.className = 'timer';
       timer.id = 'tracking-timer';
       document.body.appendChild(timer);
+
       let remaining = trackingDuration;
       timer.textContent = `${remaining}s`;
+
       timerInterval = setInterval(() => {
         remaining--;
+        if (remaining < 0) remaining = 0;
         timer.textContent = `${remaining}s`;
-        if (remaining <= 0) stopTracking();
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          nextBtn.style.display = "none";
+          stopTracking();
+        }
       }, 1000);
     }
+
+    // STOP TRACKING
     function stopTracking() {
+      if (!trackingActive) return;
       trackingActive = false;
-      clearInterval(timerInterval);
-      document.getElementById('tracking-timer').remove();
-      webgazer.pause();
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      const t = document.getElementById('tracking-timer');
+      if (t) t.remove();
+
+      if (typeof webgazer !== 'undefined') {
+        webgazer.pause();
+      }
+
       document.querySelector('.container').style.display = 'block';
       document.getElementById('status-display').classList.remove('hidden');
       document.getElementById('download-group').classList.remove('hidden');
       document.getElementById('thank-you').classList.remove('hidden');
+
       updateStatus('Tracking successfully done', 'status-success');
     }
+
+    // DOWNLOAD + HEATMAPS
     function downloadResults() {
       generateExcelFile();
       generateHeatmap('simple');
       generateHeatmap('timing');
       generateHeatmap('density');
     }
+
     function recordGazeData(x, y, timestamp) {
       gazeData.push({
         timestamp,
@@ -833,9 +919,11 @@
         age: testTakerAge,
         gender: testTakerGender,
         education: testTakerEducation,
-        nationality: testTakerNationality
+        nationality: testTakerNationality,
+        screen_index: screenIndex + 1   // 1..4
       });
     }
+
     function drawGazeDot(x, y) {
       const dot = document.createElement('div');
       dot.className = 'gaze-dot';
@@ -844,6 +932,7 @@
       document.body.appendChild(dot);
       setTimeout(() => dot.remove(), 200);
     }
+
     function generateExcelFile() {
       const data = gazeData.map((g, i) => ({
         Index: i + 1,
@@ -852,6 +941,7 @@
         Gender: g.gender,
         Education: g.education,
         Nationality: g.nationality,
+        Screen: g.screen_index,
         Timestamp: g.timestamp,
         X: g.x,
         Y: g.y,
@@ -862,90 +952,93 @@
       XLSX.utils.book_append_sheet(wb, ws, 'Gaze Data');
       XLSX.writeFile(wb, `gaze_data_${testTakerName}.xlsx`);
     }
+
     function generateHeatmap(type) {
       const canvas = document.createElement('canvas');
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       const ctx = canvas.getContext('2d');
+
       if (currentImage) {
         ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
       } else {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
+
       let filename;
-      switch (type) {
-        case 'simple':
-          ctx.globalAlpha = 0.3;
-          ctx.fillStyle = 'red';
-          gazeData.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
-            ctx.fill();
-          });
-          filename = `heatmap_simple_${testTakerName}.png`;
-          break;
-        case 'timing':
-          ctx.globalAlpha = 0.3;
-          gazeData.forEach((p, i) => {
-            let progress = i / (gazeData.length - 1);
+
+      if (type === 'simple') {
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = 'red';
+        gazeData.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+          ctx.fill();
+        });
+        filename = `heatmap_simple_${testTakerName}.png`;
+      } else if (type === 'timing') {
+        ctx.globalAlpha = 0.3;
+        gazeData.forEach((p, i) => {
+          let progress = (gazeData.length > 1) ? i / (gazeData.length - 1) : 0;
+          let r, g, b = 0;
+          if (progress <= 0.5) {
+            r = Math.round(255 * (progress / 0.5));
+            g = 255;
+          } else {
+            r = 255;
+            g = Math.round(255 * (1 - (progress - 0.5) / 0.5));
+          }
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+          ctx.fill();
+        });
+        filename = `heatmap_timing_${testTakerName}.png`;
+      } else if (type === 'density') {
+        const dcanvas = document.createElement('canvas');
+        dcanvas.width = canvas.width;
+        dcanvas.height = canvas.height;
+        const dctx = dcanvas.getContext('2d');
+        dctx.fillStyle = 'black';
+        dctx.globalAlpha = 0.02;
+        gazeData.forEach(p => {
+          dctx.beginPath();
+          dctx.arc(p.x, p.y, 50, 0, 2 * Math.PI);
+          dctx.fill();
+        });
+
+        let imageData = dctx.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imageData.data;
+        let max_alpha = 0;
+        for (let i = 3; i < data.length; i += 4) {
+          if (data[i] > max_alpha) max_alpha = data[i];
+        }
+        if (max_alpha === 0) max_alpha = 1;
+
+        for (let i = 0; i < data.length; i += 4) {
+          let alpha = data[i + 3];
+          if (alpha > 0) {
+            let norm = alpha / max_alpha;
             let r, g, b = 0;
-            if (progress <= 0.5) {
-              r = Math.round(255 * (progress / 0.5));
+            if (norm <= 0.5) {
+              r = Math.round(255 * (norm / 0.5));
               g = 255;
             } else {
               r = 255;
-              g = Math.round(255 * (1 - (progress - 0.5) / 0.5));
+              g = Math.round(255 * (1 - (norm - 0.5) / 0.5));
             }
-            ctx.fillStyle = `rgb(${r},${g},${b})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
-            ctx.fill();
-          });
-          filename = `heatmap_timing_${testTakerName}.png`;
-          break;
-        case 'density':
-          const dcanvas = document.createElement('canvas');
-          dcanvas.width = canvas.width;
-          dcanvas.height = canvas.height;
-          const dctx = dcanvas.getContext('2d');
-          dctx.fillStyle = 'black';
-          dctx.globalAlpha = 0.02;
-          gazeData.forEach(p => {
-            dctx.beginPath();
-            dctx.arc(p.x, p.y, 50, 0, 2 * Math.PI);
-            dctx.fill();
-          });
-          let imageData = dctx.getImageData(0, 0, canvas.width, canvas.height);
-          let data = imageData.data;
-          let max_alpha = 0;
-          for (let i = 3; i < data.length; i += 4) {
-            if (data[i] > max_alpha) max_alpha = data[i];
+            data[i] = r;
+            data[i + 1] = g;
+            data[i + 2] = b;
+            data[i + 3] = Math.round(128 + 127 * norm);
           }
-          if (max_alpha === 0) max_alpha = 1;
-          for (let i = 0; i < data.length; i += 4) {
-            let alpha = data[i + 3];
-            if (alpha > 0) {
-              let norm = alpha / max_alpha;
-              let r, g, b = 0;
-              if (norm <= 0.5) {
-                r = Math.round(255 * (norm / 0.5));
-                g = 255;
-              } else {
-                r = 255;
-                g = Math.round(255 * (1 - (norm - 0.5) / 0.5));
-              }
-              data[i] = r;
-              data[i + 1] = g;
-              data[i + 2] = b;
-              data[i + 3] = Math.round(128 + 127 * norm);
-            }
-          }
-          dctx.putImageData(imageData, 0, 0);
-          ctx.drawImage(dcanvas, 0, 0);
-          filename = `heatmap_density_${testTakerName}.png`;
-          break;
+        }
+        dctx.putImageData(imageData, 0, 0);
+        ctx.drawImage(dcanvas, 0, 0);
+        filename = `heatmap_density_${testTakerName}.png`;
       }
+
       canvas.toBlob(blob => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -953,6 +1046,7 @@
         a.click();
       });
     }
+
     function updateStatus(msg, className) {
       const status = document.getElementById('status-message');
       status.textContent = msg;
