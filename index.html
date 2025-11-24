@@ -42,8 +42,6 @@
     }
     input[type="text"],
     input[type="number"],
-    input[type="file"],
-    input[type="url"],
     select {
       width: 100%;
       padding: 10px;
@@ -622,9 +620,11 @@
     }
 
     nextBtn.onclick = async function () {
-      // If "End" is clicked
+      // If "End" is clicked on last screen
       if (screenIndex === campaignOrder.length - 1) {
         nextBtn.style.display = "none";
+        // Download 16 files (4 per screen) with names starting c01, c02, c03, c04
+        generateAllScreenFiles();
         stopTracking();
         return;
       }
@@ -901,14 +901,12 @@
       updateStatus('Tracking successfully done', 'status-success');
     }
 
-    // DOWNLOAD + HEATMAPS
+    // MANUAL DOWNLOAD BUTTON – also generate 16 files again if clicked
     function downloadResults() {
-      generateExcelFile();
-      generateHeatmap('simple');
-      generateHeatmap('timing');
-      generateHeatmap('density');
+      generateAllScreenFiles();
     }
 
+    // RECORD GAZE
     function recordGazeData(x, y, timestamp) {
       gazeData.push({
         timestamp,
@@ -920,7 +918,7 @@
         gender: testTakerGender,
         education: testTakerEducation,
         nationality: testTakerNationality,
-        screen_index: screenIndex + 1   // 1..4
+        screen_index: screenIndex + 1   // 1..4 corresponding to campaignOrder index
       });
     }
 
@@ -933,8 +931,34 @@
       setTimeout(() => dot.remove(), 200);
     }
 
-    function generateExcelFile() {
-      const data = gazeData.map((g, i) => ({
+    // ---------- PER-SCREEN EXPORTS (16 FILES TOTAL) ----------
+
+    // Generate all files for all 4 screens
+    function generateAllScreenFiles() {
+      // map each path to {code: "c01", path: "campaign/c01.JPG", idx: 0..3}
+      const screenEntries = campaignOrder.map((path, idx) => {
+        const fname = path.split("/").pop();     // c01.JPG
+        const code = fname.split(".")[0];        // c01
+        return { code, path, idx };
+      });
+
+      screenEntries.forEach(entry => {
+        const screenNum = entry.idx + 1;
+        const screenData = gazeData.filter(g => g.screen_index === screenNum);
+
+        // c01_gaze.xlsx, c02_gaze.xlsx, ...
+        generateExcelFileForScreen(entry.code, screenData);
+
+        // c01_simple.png, c01_timing.png, c01_density.png, etc.
+        generateHeatmapForScreen(entry.code, screenData, "simple", entry.path);
+        generateHeatmapForScreen(entry.code, screenData, "timing", entry.path);
+        generateHeatmapForScreen(entry.code, screenData, "density", entry.path);
+      });
+    }
+
+    // Excel per screen: c01_gaze.xlsx, ...
+    function generateExcelFileForScreen(code, dataArr) {
+      const data = dataArr.map((g, i) => ({
         Index: i + 1,
         Name: g.name,
         Age: g.age,
@@ -947,104 +971,103 @@
         Y: g.y,
         'Relative Time (ms)': g.relative
       }));
+
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Gaze Data');
-      XLSX.writeFile(wb, `gaze_data_${testTakerName}.xlsx`);
+
+      XLSX.writeFile(wb, `${code}_gaze.xlsx`);
     }
 
-    function generateHeatmap(type) {
+    // Heatmaps per screen: c01_simple.png, c01_timing.png, c01_density.png
+    function generateHeatmapForScreen(code, arr, type, path) {
       const canvas = document.createElement('canvas');
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       const ctx = canvas.getContext('2d');
 
-      if (currentImage) {
-        ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-      } else {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
+      // Load the proper campaign screen as background
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      let filename;
+        let filename = `${code}_${type}.png`;
 
-      if (type === 'simple') {
-        ctx.globalAlpha = 0.3;
-        ctx.fillStyle = 'red';
-        gazeData.forEach(p => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
-          ctx.fill();
-        });
-        filename = `heatmap_simple_${testTakerName}.png`;
-      } else if (type === 'timing') {
-        ctx.globalAlpha = 0.3;
-        gazeData.forEach((p, i) => {
-          let progress = (gazeData.length > 1) ? i / (gazeData.length - 1) : 0;
-          let r, g, b = 0;
-          if (progress <= 0.5) {
-            r = Math.round(255 * (progress / 0.5));
-            g = 255;
-          } else {
-            r = 255;
-            g = Math.round(255 * (1 - (progress - 0.5) / 0.5));
-          }
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
-          ctx.fill();
-        });
-        filename = `heatmap_timing_${testTakerName}.png`;
-      } else if (type === 'density') {
-        const dcanvas = document.createElement('canvas');
-        dcanvas.width = canvas.width;
-        dcanvas.height = canvas.height;
-        const dctx = dcanvas.getContext('2d');
-        dctx.fillStyle = 'black';
-        dctx.globalAlpha = 0.02;
-        gazeData.forEach(p => {
-          dctx.beginPath();
-          dctx.arc(p.x, p.y, 50, 0, 2 * Math.PI);
-          dctx.fill();
-        });
-
-        let imageData = dctx.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imageData.data;
-        let max_alpha = 0;
-        for (let i = 3; i < data.length; i += 4) {
-          if (data[i] > max_alpha) max_alpha = data[i];
+        if (type === "simple") {
+          ctx.globalAlpha = 0.3;
+          ctx.fillStyle = 'red';
+          arr.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+            ctx.fill();
+          });
         }
-        if (max_alpha === 0) max_alpha = 1;
 
-        for (let i = 0; i < data.length; i += 4) {
-          let alpha = data[i + 3];
-          if (alpha > 0) {
-            let norm = alpha / max_alpha;
+        else if (type === "timing") {
+          ctx.globalAlpha = 0.3;
+          arr.forEach((p, i) => {
+            let progress = (arr.length > 1) ? i / (arr.length - 1) : 0;
             let r, g, b = 0;
-            if (norm <= 0.5) {
-              r = Math.round(255 * (norm / 0.5));
+            if (progress <= 0.5) {
+              r = Math.round(255 * (progress / 0.5));
               g = 255;
             } else {
               r = 255;
-              g = Math.round(255 * (1 - (norm - 0.5) / 0.5));
+              g = Math.round(255 * (1 - (progress - 0.5) / 0.5));
             }
-            data[i] = r;
-            data[i + 1] = g;
-            data[i + 2] = b;
-            data[i + 3] = Math.round(128 + 127 * norm);
-          }
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+            ctx.fill();
+          });
         }
-        dctx.putImageData(imageData, 0, 0);
-        ctx.drawImage(dcanvas, 0, 0);
-        filename = `heatmap_density_${testTakerName}.png`;
-      }
 
-      canvas.toBlob(blob => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        a.click();
-      });
+        else if (type === "density") {
+          const dcanvas = document.createElement('canvas');
+          dcanvas.width = canvas.width;
+          dcanvas.height = canvas.height;
+          const dctx = dcanvas.getContext('2d');
+
+          dctx.fillStyle = "black";
+          dctx.globalAlpha = 0.02;
+          arr.forEach(p => {
+            dctx.beginPath();
+            dctx.arc(p.x, p.y, 50, 0, 2 * Math.PI);
+            dctx.fill();
+          });
+
+          let imageData = dctx.getImageData(0, 0, canvas.width, canvas.height);
+          let data = imageData.data;
+
+          let maxAlpha = 1;
+          for (let i = 3; i < data.length; i += 4)
+            if (data[i] > maxAlpha) maxAlpha = data[i];
+
+          for (let i = 0; i < data.length; i += 4) {
+            let alpha = data[i+3];
+            if (alpha > 0) {
+              let norm = alpha / maxAlpha;
+              let r, g;
+              if (norm <= 0.5) { r = Math.round(255*(norm/0.5)); g = 255; }
+              else { r = 255; g = Math.round(255*(1 - (norm-0.5)/0.5)); }
+              data[i] = r; data[i+1] = g; data[i+2] = 0;
+              data[i+3] = Math.round(128 + 127*norm);
+            }
+          }
+
+          dctx.putImageData(imageData, 0, 0);
+          ctx.drawImage(dcanvas, 0, 0);
+        }
+
+        canvas.toBlob(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = filename;
+          a.click();
+        });
+      };
+
+      img.src = path;
     }
 
     function updateStatus(msg, className) {
