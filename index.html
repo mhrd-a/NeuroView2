@@ -303,6 +303,7 @@
         <label for="testerNationality">🌍 Nationality:</label>
         <select id="testerNationality" required>
           <option value="" disabled selected>Select your nationality</option>
+          <!-- (full nationality list preserved as in your original) -->
           <option value="afghan">Afghan</option>
           <option value="albanian">Albanian</option>
           <option value="algerian">Algerian</option>
@@ -499,8 +500,6 @@
         </select>
       </div>
 
-      <!-- NO URL / FILE INPUTS ANYMORE -->
-
       <div class="input-group">
         <label for="durationInput">⏱️ Tracking Duration (seconds):</label>
         <input type="number" id="durationInput" value="60" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
@@ -524,33 +523,9 @@
       </div>
     </div>
 
-    <!-- NEW TEST PHASE (no URL/file inputs) -->
-    <div id="new-test-phase" class="instructions hidden">
-      <h2>New Eye Tracking Test</h2>
-      <p>Click "Start New Test" to view a new set of campaign screens.</p>
-      <div class="input-group">
-        <label for="newDurationInput">⏱️ Tracking Duration (seconds):</label>
-        <input type="number" id="newDurationInput" value="60" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
-        <small>Recommended: 30–60 seconds</small>
-      </div>
-      <div class="input-group">
-        <button class="btn" onclick="startNewTest()">Start New Test</button>
-      </div>
-    </div>
-
-    <!-- STATUS / DOWNLOAD / THANK YOU -->
+    <!-- STATUS -->
     <div id="status-display" class="hidden">
       <div id="status-message" class="status-info">Preparing Calibration...</div>
-      <div id="download-group" class="input-group hidden">
-        <button class="btn" onclick="downloadResults()">Download Results</button>
-      </div>
-      <div id="thank-you" class="input-group hidden">
-        <p>Thank you for completing the eye tracking test!</p>
-        <div class="button-group">
-          <button class="btn btn-secondary" onclick="goToHome()">Go to Home Page</button>
-          <button class="btn" onclick="showNewTest()">Do Another Test</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -580,7 +555,7 @@
       };
     };
 
-    // Helper to get current time as hhmmss for filenames (if used)
+    // Helper to get current time as hhmmss for filenames
     function getCurrentTimeStamp() {
       const d = new Date();
       const hh = String(d.getHours()).padStart(2, '0');
@@ -632,12 +607,14 @@
       nextBtn.textContent = (screenIndex === campaignOrder.length - 1) ? "End" : "Next";
     }
 
-    nextBtn.onclick = async function () {
-      // stop current timer if user manually clicks
+    // When user manually clicks Next / End
+    nextBtn.onclick = function () {
+      // If timer is still running, clear it and stop current tracking
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
       }
+
       const t = document.getElementById('tracking-timer');
       if (t) t.remove();
 
@@ -648,25 +625,14 @@
 
       lastClickTimestamp = getCurrentTimeStamp();
 
-      // If last screen: end experiment
+      // If this was the last screen: END experiment
       if (screenIndex === campaignOrder.length - 1) {
-        nextBtn.style.display = "none";
-        // If you have generateAllScreenFiles, call here
-        if (typeof generateAllScreenFiles === "function") {
-          generateAllScreenFiles();
-        }
         stopTracking();
         return;
       }
 
-      // Go to next screen
-      screenIndex++;
-      const path = campaignOrder[screenIndex];
-      await loadCampaignScreen(path);
-      showNextButton();
-
-      // start tracking for next screen
-      beginTracking();
+      // Otherwise go to next screen and start a new test
+      goToNextScreen();
     };
 
     // UI navigation helpers
@@ -680,36 +646,6 @@
       document.getElementById('setup-phase').classList.remove('hidden');
     }
 
-    function showNewTest() {
-      document.getElementById('status-display').classList.add('hidden');
-      document.getElementById('thank-you').classList.add('hidden');
-      document.getElementById('download-group').classList.add('hidden');
-      document.getElementById('new-test-phase').classList.remove('hidden');
-    }
-
-    function goToHome() {
-      document.getElementById('status-display').classList.add('hidden');
-      document.getElementById('thank-you').classList.add('hidden');
-      document.getElementById('download-group').classList.add('hidden');
-      document.getElementById('setup-phase').classList.remove('hidden');
-
-      // Reset demographics
-      document.getElementById('testerAge').value = '';
-      document.getElementById('testerGender').value = '';
-      document.getElementById('testerEducation').value = '';
-      document.getElementById('testerNationality').value = '';
-      document.getElementById('durationInput').value = '60';
-
-      // Remove background if any
-      if (currentImage) { currentImage.remove(); currentImage = null; }
-      if (currentIframe) { currentIframe.remove(); currentIframe = null; }
-
-      if (typeof webgazer !== 'undefined') {
-        webgazer.end();
-        isWebGazerInitialized = false;
-      }
-    }
-
     // START MAIN TEST
     async function startEyeTracking() {
       testTakerName = 'participant';
@@ -721,6 +657,7 @@
 
       // reset gaze data for this run
       gazeData = [];
+      lastClickTimestamp = "";
 
       document.getElementById('instructions-phase').classList.add('hidden');
       document.getElementById('status-display').classList.remove('hidden');
@@ -742,39 +679,6 @@
 
         updateStatus('Starting calibration...', 'status-info');
         await startCalibration();
-        updateStatus('Tracking in progress...', 'status-success');
-        beginTracking();
-      } catch (error) {
-        console.error('Error:', error);
-        updateStatus('Error: ' + error.message, 'status-warning');
-      }
-    }
-
-    // START NEW TEST
-    async function startNewTest() {
-      trackingDuration = parseInt(document.getElementById('newDurationInput').value) || 60;
-
-      // reset gaze data for this new test
-      gazeData = [];
-
-      document.getElementById('new-test-phase').classList.add('hidden');
-      document.getElementById('status-display').classList.remove('hidden');
-      updateStatus('Loading campaign screen...', 'status-info');
-
-      campaignOrder = shuffle(campaignImages);
-      screenIndex = 0;
-
-      try {
-        await loadCampaignScreen(campaignOrder[screenIndex]);
-        updateStatus('Preparing WebGazer...', 'status-info');
-
-        if (!isWebGazerInitialized) {
-          await initializeWebGazer();
-          isWebGazerInitialized = true;
-        } else {
-          webgazer.resume();
-        }
-
         updateStatus('Tracking in progress...', 'status-success');
         beginTracking();
       } catch (error) {
@@ -914,15 +818,38 @@
             webgazer.pause();
           }
 
-          // hide Next during countdown
+          // Hide manual Next while countdown runs
           nextBtn.style.display = "none";
 
-          showTimeoutOverlayAndGoNext();
+          if (screenIndex === campaignOrder.length - 1) {
+            // last test → finish after countdown
+            showTimeoutOverlayAndEnd();
+          } else {
+            // intermediate tests → countdown then next test
+            showTimeoutOverlayAndGoNext();
+          }
         }
       }, 1000);
     }
 
-    // SHOW 3-2-1 OVERLAY THEN AUTO-NEXT
+    // Helper: move to next screen and start new tracking
+    function goToNextScreen() {
+      screenIndex++;
+      const path = campaignOrder[screenIndex];
+      loadCampaignScreen(path)
+        .then(() => {
+          document.getElementById('status-display').classList.remove('hidden');
+          updateStatus('Tracking in progress...', 'status-success');
+          beginTracking();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('status-display').classList.remove('hidden');
+          updateStatus('Error: ' + error.message, 'status-warning');
+        });
+    }
+
+    // SHOW 3-2-1 OVERLAY THEN AUTO-NEXT (NOT LAST SCREEN)
     function showTimeoutOverlayAndGoNext() {
       const overlay = document.createElement("div");
       overlay.className = "fullscreen-overlay";
@@ -944,46 +871,221 @@
         if (cd === 0) {
           clearInterval(cdInt);
           overlay.remove();
-
-          // After countdown, simulate Next/End click
-          nextBtn.click();
+          goToNextScreen();
         }
       }, 1000);
     }
 
-    // STOP TRACKING – after last screen
-    function stopTracking() {
-      if (!trackingActive && !timerInterval) {
-        // already stopped; just show UI
-      } else {
-        trackingActive = false;
+    // SHOW 3-2-1 OVERLAY THEN END (LAST SCREEN)
+    function showTimeoutOverlayAndEnd() {
+      const overlay = document.createElement("div");
+      overlay.className = "fullscreen-overlay";
+      overlay.style.background = "rgba(0,0,0,0.85)";
+      overlay.innerHTML = `
+        <h2>Time is Up!</h2>
+        <p>Finishing experiment...</p>
+        <h1 id="countdownEnd" style="font-size: 4rem; margin-top: 20px;">3</h1>
+      `;
+      document.body.appendChild(overlay);
 
-        if (timerInterval) {
-          clearInterval(timerInterval);
-          timerInterval = null;
+      let cd = 3;
+      const cdInt = setInterval(() => {
+        cd--;
+        if (cd < 0) cd = 0;
+        const el = document.getElementById("countdownEnd");
+        if (el) el.textContent = cd;
+
+        if (cd === 0) {
+          clearInterval(cdInt);
+          overlay.remove();
+          stopTracking();
         }
-
-        const t = document.getElementById('tracking-timer');
-        if (t) t.remove();
-
-        if (typeof webgazer !== 'undefined') {
-          webgazer.pause();
-        }
-      }
-
-      document.querySelector('.container').style.display = 'block';
-      document.getElementById('status-display').classList.remove('hidden');
-      document.getElementById('download-group').classList.remove('hidden');
-      document.getElementById('thank-you').classList.remove('hidden');
-
-      updateStatus('Tracking successfully done', 'status-success');
+      }, 1000);
     }
 
-    // MANUAL DOWNLOAD BUTTON – expects generateAllScreenFiles defined elsewhere
-    function downloadResults() {
-      if (typeof generateAllScreenFiles === "function") {
-        generateAllScreenFiles();
+    // ---------- PER-SCREEN EXPORTS (16 FILES TOTAL) ----------
+
+    // Generate all files for all 4 screens
+    function generateAllScreenFiles() {
+      // Ensure we have some timestamp even if user never pressed Next/End
+      if (!lastClickTimestamp) {
+        lastClickTimestamp = getCurrentTimeStamp();
       }
+
+      // map each path to {code: "c01", path: "campaign/c01.JPG", idx: 0..3}
+      const screenEntries = campaignOrder.map((path, idx) => {
+        const fname = path.split("/").pop();     // c01.JPG
+        const code = fname.split(".")[0];        // c01
+        return { code, path, idx };
+      });
+
+      screenEntries.forEach(entry => {
+        const screenNum = entry.idx + 1;
+        const screenData = gazeData.filter(g => g.screen_index === screenNum);
+
+        // c01_gaze_hhmmss.xlsx, c02_gaze_hhmmss.xlsx, ...
+        generateExcelFileForScreen(entry.code, screenData);
+
+        // c01_simple_hhmmss.png, c01_timing_hhmmss.png, c01_density_hhmmss.png, etc.
+        generateHeatmapForScreen(entry.code, screenData, "simple", entry.path);
+        generateHeatmapForScreen(entry.code, screenData, "timing", entry.path);
+        generateHeatmapForScreen(entry.code, screenData, "density", entry.path);
+      });
+    }
+
+    // Excel per screen: c01_gaze_hhmmss.xlsx, ...
+    function generateExcelFileForScreen(code, dataArr) {
+      const data = dataArr.map((g, i) => ({
+        Index: i + 1,
+        Name: g.name,
+        Age: g.age,
+        Gender: g.gender,
+        Education: g.education,
+        Nationality: g.nationality,
+        Screen: g.screen_index,
+        Timestamp: g.timestamp,
+        X: g.x,
+        Y: g.y,
+        'Relative Time (ms)': g.relative
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Gaze Data');
+
+      XLSX.writeFile(wb, `${code}_gaze_${lastClickTimestamp}.xlsx`);
+    }
+
+    // Heatmaps per screen: c01_simple_hhmmss.png, c01_timing_hhmmss.png, c01_density_hhmmss.png
+    function generateHeatmapForScreen(code, arr, type, path) {
+      const canvas = document.createElement('canvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext('2d');
+
+      // Load the proper campaign screen as background
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        let filename = `${code}_${type}_${lastClickTimestamp}.png`;
+
+        if (type === "simple") {
+          ctx.globalAlpha = 0.3;
+          ctx.fillStyle = 'red';
+          arr.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+            ctx.fill();
+          });
+        }
+
+        else if (type === "timing") {
+          ctx.globalAlpha = 0.3;
+          arr.forEach((p, i) => {
+            let progress = (arr.length > 1) ? i / (arr.length - 1) : 0;
+            let r, g, b = 0;
+            if (progress <= 0.5) {
+              r = Math.round(255 * (progress / 0.5));
+              g = 255;
+            } else {
+              r = 255;
+              g = Math.round(255 * (1 - (progress - 0.5) / 0.5));
+            }
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
+            ctx.fill();
+          });
+        }
+
+        else if (type === "density") {
+          const dcanvas = document.createElement('canvas');
+          dcanvas.width = canvas.width;
+          dcanvas.height = canvas.height;
+          const dctx = dcanvas.getContext('2d');
+
+          dctx.fillStyle = "black";
+          dctx.globalAlpha = 0.02;
+          arr.forEach(p => {
+            dctx.beginPath();
+            dctx.arc(p.x, p.y, 50, 0, 2 * Math.PI);
+            dctx.fill();
+          });
+
+          let imageData = dctx.getImageData(0, 0, canvas.width, canvas.height);
+          let data = imageData.data;
+
+          let maxAlpha = 1;
+          for (let i = 3; i < data.length; i += 4)
+            if (data[i] > maxAlpha) maxAlpha = data[i];
+
+          for (let i = 0; i < data.length; i += 4) {
+            let alpha = data[i+3];
+            if (alpha > 0) {
+              let norm = alpha / maxAlpha;
+              let r, g;
+              if (norm <= 0.5) { r = Math.round(255*(norm/0.5)); g = 255; }
+              else { r = 255; g = Math.round(255*(1 - (norm-0.5)/0.5)); }
+              data[i] = r; data[i+1] = g; data[i+2] = 0;
+              data[i+3] = Math.round(128 + 127*norm);
+            }
+          }
+
+          dctx.putImageData(imageData, 0, 0);
+          ctx.drawImage(dcanvas, 0, 0);
+        }
+
+        canvas.toBlob(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = filename;
+          a.click();
+        });
+      };
+
+      img.src = path;
+    }
+
+    // FINAL STOP – downloads + fullscreen thank-you, no links
+    function stopTracking() {
+      trackingActive = false;
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      const t = document.getElementById('tracking-timer');
+      if (t) t.remove();
+
+      if (typeof webgazer !== 'undefined') {
+        webgazer.pause();
+      }
+
+      // Auto-download all 16 files
+      generateAllScreenFiles();
+
+      // Remove background screens
+      if (currentImage) { currentImage.remove(); currentImage = null; }
+      if (currentIframe) { currentIframe.remove(); currentIframe = null; }
+
+      // Hide UI
+      const mainContainer = document.querySelector('.container');
+      if (mainContainer) mainContainer.style.display = 'none';
+      document.getElementById('status-display').classList.add('hidden');
+      nextBtn.style.display = "none";
+
+      // Final thank-you overlay (Option 1)
+      const finalOverlay = document.createElement("div");
+      finalOverlay.className = "fullscreen-overlay";
+      finalOverlay.style.background = "rgba(0,0,0,0.9)";
+      finalOverlay.innerHTML = `
+        <h1 style="font-size: 3rem; margin-bottom: 20px;">Thank you!</h1>
+        <p style="font-size: 1.4rem; margin: 0 0 10px 0;">You have completed the eye tracking study.</p>
+        <p style="font-size: 1.1rem; margin: 0;">Your data has been saved successfully.</p>
+      `;
+      document.body.appendChild(finalOverlay);
     }
 
     // RECORD GAZE
