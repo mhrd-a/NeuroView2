@@ -221,47 +221,52 @@
 <body>
   <!-- CONSENT MODAL -->
   <div id="consent-modal">
-    <div class="consent-content">
-      <p>We are asking you to take part in a research study being conducted by
-        <strong>Mehrdad Alikhani</strong>, <strong>Farinoosh Zarinmakan</strong>, and
-        <strong>Dr. John B. Ford</strong> at <strong>Old Dominion University</strong>.
-      </p>
+  <div class="consent-content">
 
-      <p>If you choose to participate, you will complete a short computer-based activity that uses your webcam
-        to estimate your eye movements while viewing four simulated crowdfunding webpages. This study will help
-        us learn more about how people pay attention to different types of information (creator and crowd signals)
-        when making funding decisions on crowdfunding platforms. The session will take about <strong>5–10 minutes</strong> to complete.
-      </p>
+    <h2>Visual Attention to Signals in Crowdfunding Decisions</h2>
 
-      <p>You may skip any part of the activity or stop at any time. The study is anonymous,
-        and no one will be able to link your responses or gaze data back to you. Please do not provide your name
-        or any information that could identify you. The webcam is used only to estimate gaze position and
-        does <strong>not record or store any video</strong>.
-      </p>
+    <p><strong>Notification Statement / Information Sheet for Exempt Protocols</strong></p>
 
-      <p>If you have any questions about this study, please contact
-        Mehrdad Alikhani at <a href="mailto:malik001@odu.edu">malik001@odu.edu</a>.
-        If you have questions or concerns about your rights as a research participant, you may contact the
-        ODU Social &amp; Behavioral Human Subjects Research Exempt Committee Chair,
-        Dr. Randy Gainey, at <a href="mailto:rgainey@odu.edu">rgainey@odu.edu</a>
-        or 757-683-4794, or the Old Dominion University Division of Research and Economic Development
-        at 757-683-3460.
-      </p>
+    <p><strong>Introduction</strong><br>
+    You are invited to take part in a research study conducted by Mehrdad Alikhani, Farinoosh Zarinmakan, and Dr. John B. Ford at Old Dominion University. This study aims to understand how individuals pay attention to different types of information (creator and crowd signals) when making funding decisions on crowdfunding platforms.</p>
 
-      <p>Participation in this study is <strong>voluntary</strong>. If you wish to take part, please check the box below and click
-        <strong>“I Agree to Participate”</strong> to begin.
-      </p>
+    <p><strong>Description of the Research Study</strong><br>
+    If you choose to participate, you will complete a short computer-based activity that uses the webcam to estimate your eye movements while viewing four simulated crowdfunding webpages. The session will take approximately 5–10 minutes to complete. The webcam will be used only to estimate gaze position and will not record or store any video.</p>
 
-      <div class="consent-checkbox">
-        <input type="checkbox" id="consent-checkbox" />
-        <label for="consent-checkbox">
-          I have read the information above and voluntarily agree to participate in this research study.
-        </label>
-      </div>
+    <p><strong>Exclusion Criteria</strong><br>
+    You should have completed a pre-screening questionnaire confirming the following:</p>
 
-      <button id="agree-button" class="btn" disabled>I Agree to Participate</button>
+    <ul>
+      <li>You are 21 years of age or older.</li>
+      <li>You have normal or corrected-to-normal vision (e.g., glasses or contact lenses).</li>
+      <li>You are comfortable using the computer provided for this study, and its built-in webcam will track your eye movements during the task.</li>
+      <li>You should not have any uncorrected visual impairments or medical conditions that could affect concentration or eye movements.</li>
+    </ul>
+
+    <p><strong>Risks and Benefits</strong><br>
+    The risks associated with this study are minimal and no greater than those encountered in typical computer use. There are no direct benefits to you for participating; however, your participation will contribute to research on decision-making and attention in online crowdfunding environments.</p>
+
+    <p><strong>Confidentiality</strong><br>
+    The study is anonymous. No identifying information will be collected, and no one will be able to link your responses or gaze data to your identity. Data will be stored securely on a password-protected laboratory computer accessible only to the research team.</p>
+
+    <p><strong>Withdrawal Privilege</strong><br>
+    Participation in this study is voluntary. You may skip any part of the activity or stop at any time without penalty.</p>
+
+    <p><strong>Contact Information</strong><br>
+    If you have any questions about this study, please contact Mehrdad Alikhani at <a href="mailto:malik001@odu.edu">malik001@odu.edu</a>.<br>
+    If you have questions or concerns about your rights as a research participant, you may contact the ODU Social & Behavioral Human Subjects Research Exempt Committee Chair, Dr. Randy Gainey, at <a href="mailto:rgainey@odu.edu">rgainey@odu.edu</a> or 757-683-4794, or the Old Dominion University Division of Research and Economic Development at 757-683-3460.</p>
+
+    <p><strong>Consent Statement</strong><br>
+    By checking the box below and clicking “I Agree to Participate,” you indicate that you have read this information and voluntarily agree to take part in this research study.</p>
+
+    <div class="consent-checkbox">
+      <input type="checkbox" id="consent-checkbox" />
+      <label for="consent-checkbox">I agree to participate in this research study.</label>
     </div>
+
+    <button id="agree-button" class="btn" disabled>I Agree to Participate</button>
   </div>
+</div>
 
   <!-- MAIN CONTAINER -->
   <div class="container hidden">
@@ -577,6 +582,15 @@
       };
     };
 
+    // Helper to get current time as hhmmss for filenames
+    function getCurrentTimeStamp() {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      return hh + mm + ss;
+    }
+
     // GLOBAL STATE
     let gazeData = [],
         trackingActive = false,
@@ -590,7 +604,8 @@
         testTakerGender = '',
         testTakerEducation = '',
         testTakerNationality = '',
-        isWebGazerInitialized = false;
+        isWebGazerInitialized = false,
+        lastClickTimestamp = "";   // used to suffix filenames with _hhmmss
 
     // Campaign images and order
     let campaignImages = [
@@ -620,10 +635,13 @@
     }
 
     nextBtn.onclick = async function () {
+      // capture time of click for filenames
+      lastClickTimestamp = getCurrentTimeStamp();
+
       // If "End" is clicked on last screen
       if (screenIndex === campaignOrder.length - 1) {
         nextBtn.style.display = "none";
-        // Download 16 files (4 per screen) with names starting c01, c02, c03, c04
+        // Download 16 files (4 per screen) with names starting c01, c02, c03, c04 and _hhmmss suffix
         generateAllScreenFiles();
         stopTracking();
         return;
@@ -935,6 +953,11 @@
 
     // Generate all files for all 4 screens
     function generateAllScreenFiles() {
+      // Ensure we have some timestamp even if user never pressed Next/End
+      if (!lastClickTimestamp) {
+        lastClickTimestamp = getCurrentTimeStamp();
+      }
+
       // map each path to {code: "c01", path: "campaign/c01.JPG", idx: 0..3}
       const screenEntries = campaignOrder.map((path, idx) => {
         const fname = path.split("/").pop();     // c01.JPG
@@ -946,17 +969,17 @@
         const screenNum = entry.idx + 1;
         const screenData = gazeData.filter(g => g.screen_index === screenNum);
 
-        // c01_gaze.xlsx, c02_gaze.xlsx, ...
+        // c01_gaze_hhmmss.xlsx, c02_gaze_hhmmss.xlsx, ...
         generateExcelFileForScreen(entry.code, screenData);
 
-        // c01_simple.png, c01_timing.png, c01_density.png, etc.
+        // c01_simple_hhmmss.png, c01_timing_hhmmss.png, c01_density_hhmmss.png, etc.
         generateHeatmapForScreen(entry.code, screenData, "simple", entry.path);
         generateHeatmapForScreen(entry.code, screenData, "timing", entry.path);
         generateHeatmapForScreen(entry.code, screenData, "density", entry.path);
       });
     }
 
-    // Excel per screen: c01_gaze.xlsx, ...
+    // Excel per screen: c01_gaze_hhmmss.xlsx, ...
     function generateExcelFileForScreen(code, dataArr) {
       const data = dataArr.map((g, i) => ({
         Index: i + 1,
@@ -976,10 +999,10 @@
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Gaze Data');
 
-      XLSX.writeFile(wb, `${code}_gaze.xlsx`);
+      XLSX.writeFile(wb, `${code}_gaze_${lastClickTimestamp}.xlsx`);
     }
 
-    // Heatmaps per screen: c01_simple.png, c01_timing.png, c01_density.png
+    // Heatmaps per screen: c01_simple_hhmmss.png, c01_timing_hhmmss.png, c01_density_hhmmss.png
     function generateHeatmapForScreen(code, arr, type, path) {
       const canvas = document.createElement('canvas');
       canvas.width = window.innerWidth;
@@ -991,7 +1014,7 @@
       img.onload = () => {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        let filename = `${code}_${type}.png`;
+        let filename = `${code}_${type}_${lastClickTimestamp}.png`;
 
         if (type === "simple") {
           ctx.globalAlpha = 0.3;
