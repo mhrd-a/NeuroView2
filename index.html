@@ -221,50 +221,50 @@
 <body>
   <!-- CONSENT MODAL -->
   <div id="consent-modal">
-  <div class="consent-content">
+    <div class="consent-content">
 
-    <h2>Visual Attention to Signals in Crowdfunding Decisions</h2>
+      <h2>Visual Attention to Signals in Crowdfunding Decisions</h2>
 
-    <p><strong>Introduction</strong><br>
-    You are invited to take part in a research study conducted by Mehrdad Alikhani, Farinoosh Zarinmakan, and Dr. John B. Ford at Old Dominion University. This study aims to understand how individuals pay attention to different types of information (creator and crowd signals) when making funding decisions on crowdfunding platforms.</p>
+      <p><strong>Introduction</strong><br>
+      You are invited to take part in a research study conducted by Mehrdad Alikhani, Farinoosh Zarinmakan, and Dr. John B. Ford at Old Dominion University. This study aims to understand how individuals pay attention to different types of information (creator and crowd signals) when making funding decisions on crowdfunding platforms.</p>
 
-    <p><strong>Description of the Research Study</strong><br>
-    If you choose to participate, you will complete a short computer-based activity that uses the webcam to estimate your eye movements while viewing four simulated crowdfunding webpages. The session will take approximately 5–10 minutes to complete. The webcam will be used only to estimate gaze position and will not record or store any video.</p>
+      <p><strong>Description of the Research Study</strong><br>
+      If you choose to participate, you will complete a short computer-based activity that uses the webcam to estimate your eye movements while viewing four simulated crowdfunding webpages. The session will take approximately 5–10 minutes to complete. The webcam will be used only to estimate gaze position and will not record or store any video.</p>
 
-    <p><strong>Exclusion Criteria</strong><br>
-    You should have completed a pre-screening questionnaire confirming the following:</p>
+      <p><strong>Exclusion Criteria</strong><br>
+      You should have completed a pre-screening questionnaire confirming the following:</p>
 
-    <ul>
-      <li>You are 21 years of age or older.</li>
-      <li>You have normal or corrected-to-normal vision (e.g., glasses or contact lenses).</li>
-      <li>You are comfortable using the computer provided for this study, and its built-in webcam will track your eye movements during the task.</li>
-      <li>You should not have any uncorrected visual impairments or medical conditions that could affect concentration or eye movements.</li>
-    </ul>
+      <ul>
+        <li>You are 21 years of age or older.</li>
+        <li>You have normal or corrected-to-normal vision (e.g., glasses or contact lenses).</li>
+        <li>You are comfortable using the computer provided for this study, and its built-in webcam will track your eye movements during the task.</li>
+        <li>You should not have any uncorrected visual impairments or medical conditions that could affect concentration or eye movements.</li>
+      </ul>
 
-    <p><strong>Risks and Benefits</strong><br>
-    The risks associated with this study are minimal and no greater than those encountered in typical computer use. There are no direct benefits to you for participating; however, your participation will contribute to research on decision-making and attention in online crowdfunding environments.</p>
+      <p><strong>Risks and Benefits</strong><br>
+      The risks associated with this study are minimal and no greater than those encountered in typical computer use. There are no direct benefits to you for participating; however, your participation will contribute to research on decision-making and attention in online crowdfunding environments.</p>
 
-    <p><strong>Confidentiality</strong><br>
-    The study is anonymous. No identifying information will be collected, and no one will be able to link your responses or gaze data to your identity. Data will be stored securely on a password-protected laboratory computer accessible only to the research team.</p>
+      <p><strong>Confidentiality</strong><br>
+      The study is anonymous. No identifying information will be collected, and no one will be able to link your responses or gaze data to your identity. Data will be stored securely on a password-protected laboratory computer accessible only to the research team.</p>
 
-    <p><strong>Withdrawal Privilege</strong><br>
-    Participation in this study is voluntary. You may skip any part of the activity or stop at any time without penalty.</p>
+      <p><strong>Withdrawal Privilege</strong><br>
+      Participation in this study is voluntary. You may skip any part of the activity or stop at any time without penalty.</p>
 
-    <p><strong>Contact Information</strong><br>
-    If you have any questions about this study, please contact Mehrdad Alikhani at <a href="mailto:malik001@odu.edu">malik001@odu.edu</a>.<br>
-    If you have questions or concerns about your rights as a research participant, you may contact the ODU Social & Behavioral Human Subjects Research Exempt Committee Chair, Dr. Randy Gainey, at <a href="mailto:rgainey@odu.edu">rgainey@odu.edu</a> or 757-683-4794, or the Old Dominion University Division of Research and Economic Development at 757-683-3460.</p>
+      <p><strong>Contact Information</strong><br>
+      If you have any questions about this study, please contact Mehrdad Alikhani at <a href="mailto:malik001@odu.edu">malik001@odu.edu</a>.<br>
+      If you have questions or concerns about your rights as a research participant, you may contact the ODU Social & Behavioral Human Subjects Research Exempt Committee Chair, Dr. Randy Gainey, at <a href="mailto:rgainey@odu.edu">rgainey@odu.edu</a> or 757-683-4794, or the Old Dominion University Division of Research and Economic Development at 757-683-3460.</p>
 
-    <p><strong>Consent Statement</strong><br>
-    By checking the box below and clicking “I Agree to Participate,” you indicate that you have read this information and voluntarily agree to take part in this research study.</p>
+      <p><strong>Consent Statement</strong><br>
+      By checking the box below and clicking “I Agree to Participate,” you indicate that you have read this information and voluntarily agree to take part in this research study.</p>
 
-    <div class="consent-checkbox">
-      <input type="checkbox" id="consent-checkbox" />
-      <label for="consent-checkbox">I agree to participate in this research study.</label>
+      <div class="consent-checkbox">
+        <input type="checkbox" id="consent-checkbox" />
+        <label for="consent-checkbox">I agree to participate in this research study.</label>
+      </div>
+
+      <button id="agree-button" class="btn" disabled>I Agree to Participate</button>
     </div>
-
-    <button id="agree-button" class="btn" disabled>I Agree to Participate</button>
   </div>
-</div>
 
   <!-- MAIN CONTAINER -->
   <div class="container hidden">
@@ -503,7 +503,7 @@
 
       <div class="input-group">
         <label for="durationInput">⏱️ Tracking Duration (seconds):</label>
-        <input type="number" id="durationInput" value="30" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
+        <input type="number" id="durationInput" value="60" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
         <small>Recommended: 30–60 seconds</small>
       </div>
 
@@ -530,7 +530,7 @@
       <p>Click "Start New Test" to view a new set of campaign screens.</p>
       <div class="input-group">
         <label for="newDurationInput">⏱️ Tracking Duration (seconds):</label>
-        <input type="number" id="newDurationInput" value="30" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
+        <input type="number" id="newDurationInput" value="60" min="5" max="300" step="5" title="Choose between 5 and 300 seconds" />
         <small>Recommended: 30–60 seconds</small>
       </div>
       <div class="input-group">
@@ -580,7 +580,7 @@
       };
     };
 
-    // Helper to get current time as hhmmss for filenames
+    // Helper to get current time as hhmmss for filenames (if used)
     function getCurrentTimeStamp() {
       const d = new Date();
       const hh = String(d.getHours()).padStart(2, '0');
@@ -594,7 +594,7 @@
         trackingActive = false,
         currentImage = null,
         currentIframe = null,
-        trackingDuration = 30,
+        trackingDuration = 60,
         startTime = null,
         timerInterval = null,
         testTakerName = '',
@@ -603,7 +603,7 @@
         testTakerEducation = '',
         testTakerNationality = '',
         isWebGazerInitialized = false,
-        lastClickTimestamp = "";   // used to suffix filenames with _hhmmss
+        lastClickTimestamp = "";
 
     // Campaign images and order
     let campaignImages = [
@@ -633,14 +633,28 @@
     }
 
     nextBtn.onclick = async function () {
-      // capture time of click for filenames
+      // stop current timer if user manually clicks
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      const t = document.getElementById('tracking-timer');
+      if (t) t.remove();
+
+      trackingActive = false;
+      if (typeof webgazer !== 'undefined') {
+        webgazer.pause();
+      }
+
       lastClickTimestamp = getCurrentTimeStamp();
 
-      // If "End" is clicked on last screen
+      // If last screen: end experiment
       if (screenIndex === campaignOrder.length - 1) {
         nextBtn.style.display = "none";
-        // Download 16 files (4 per screen) with names starting c01, c02, c03, c04 and _hhmmss suffix
-        generateAllScreenFiles();
+        // If you have generateAllScreenFiles, call here
+        if (typeof generateAllScreenFiles === "function") {
+          generateAllScreenFiles();
+        }
         stopTracking();
         return;
       }
@@ -650,6 +664,9 @@
       const path = campaignOrder[screenIndex];
       await loadCampaignScreen(path);
       showNextButton();
+
+      // start tracking for next screen
+      beginTracking();
     };
 
     // UI navigation helpers
@@ -681,7 +698,7 @@
       document.getElementById('testerGender').value = '';
       document.getElementById('testerEducation').value = '';
       document.getElementById('testerNationality').value = '';
-      document.getElementById('durationInput').value = '30';
+      document.getElementById('durationInput').value = '60';
 
       // Remove background if any
       if (currentImage) { currentImage.remove(); currentImage = null; }
@@ -695,20 +712,20 @@
 
     // START MAIN TEST
     async function startEyeTracking() {
-      // No name field; use generic
       testTakerName = 'participant';
-
       testTakerAge = document.getElementById('testerAge').value || 'unknown';
       testTakerGender = document.getElementById('testerGender').value || 'unknown';
       testTakerEducation = document.getElementById('testerEducation').value || 'unknown';
       testTakerNationality = document.getElementById('testerNationality').value || 'unknown';
-      trackingDuration = parseInt(document.getElementById('durationInput').value) || 30;
+      trackingDuration = parseInt(document.getElementById('durationInput').value) || 60;
+
+      // reset gaze data for this run
+      gazeData = [];
 
       document.getElementById('instructions-phase').classList.add('hidden');
       document.getElementById('status-display').classList.remove('hidden');
       updateStatus('Loading campaign screen...', 'status-info');
 
-      // Random order of 4 campaign images
       campaignOrder = shuffle(campaignImages);
       screenIndex = 0;
 
@@ -733,9 +750,12 @@
       }
     }
 
-    // START NEW TEST (no URL/file, again random campaign order)
+    // START NEW TEST
     async function startNewTest() {
-      trackingDuration = parseInt(document.getElementById('newDurationInput').value) || 30;
+      trackingDuration = parseInt(document.getElementById('newDurationInput').value) || 60;
+
+      // reset gaze data for this new test
+      gazeData = [];
 
       document.getElementById('new-test-phase').classList.add('hidden');
       document.getElementById('status-display').classList.remove('hidden');
@@ -857,18 +877,16 @@
       nextPoint();
     }
 
-    // START TRACKING
+    // START TRACKING – per-screen, duration = trackingDuration
     function beginTracking() {
       trackingActive = true;
       startTime = Date.now();
-      gazeData = [];
 
       document.querySelector('.container').style.display = 'none';
       setTimeout(() => {
         document.getElementById('status-display').classList.add('hidden');
       }, 3000);
 
-      // Show Next / End button for first screen
       showNextButton();
 
       const timer = document.createElement('div');
@@ -883,30 +901,74 @@
         remaining--;
         if (remaining < 0) remaining = 0;
         timer.textContent = `${remaining}s`;
+
         if (remaining <= 0) {
           clearInterval(timerInterval);
           timerInterval = null;
+
+          const t = document.getElementById('tracking-timer');
+          if (t) t.remove();
+
+          trackingActive = false;
+          if (typeof webgazer !== 'undefined') {
+            webgazer.pause();
+          }
+
+          // hide Next during countdown
           nextBtn.style.display = "none";
-          stopTracking();
+
+          showTimeoutOverlayAndGoNext();
         }
       }, 1000);
     }
 
-    // STOP TRACKING
+    // SHOW 3-2-1 OVERLAY THEN AUTO-NEXT
+    function showTimeoutOverlayAndGoNext() {
+      const overlay = document.createElement("div");
+      overlay.className = "fullscreen-overlay";
+      overlay.style.background = "rgba(0,0,0,0.85)";
+      overlay.innerHTML = `
+        <h2>Time is Up!</h2>
+        <p>Next test starts in:</p>
+        <h1 id="countdownNumber" style="font-size: 4rem; margin-top: 20px;">3</h1>
+      `;
+      document.body.appendChild(overlay);
+
+      let cd = 3;
+      const cdInt = setInterval(() => {
+        cd--;
+        if (cd < 0) cd = 0;
+        const el = document.getElementById("countdownNumber");
+        if (el) el.textContent = cd;
+
+        if (cd === 0) {
+          clearInterval(cdInt);
+          overlay.remove();
+
+          // After countdown, simulate Next/End click
+          nextBtn.click();
+        }
+      }, 1000);
+    }
+
+    // STOP TRACKING – after last screen
     function stopTracking() {
-      if (!trackingActive) return;
-      trackingActive = false;
+      if (!trackingActive && !timerInterval) {
+        // already stopped; just show UI
+      } else {
+        trackingActive = false;
 
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
 
-      const t = document.getElementById('tracking-timer');
-      if (t) t.remove();
+        const t = document.getElementById('tracking-timer');
+        if (t) t.remove();
 
-      if (typeof webgazer !== 'undefined') {
-        webgazer.pause();
+        if (typeof webgazer !== 'undefined') {
+          webgazer.pause();
+        }
       }
 
       document.querySelector('.container').style.display = 'block';
@@ -917,9 +979,11 @@
       updateStatus('Tracking successfully done', 'status-success');
     }
 
-    // MANUAL DOWNLOAD BUTTON – also generate 16 files again if clicked
+    // MANUAL DOWNLOAD BUTTON – expects generateAllScreenFiles defined elsewhere
     function downloadResults() {
-      generateAllScreenFiles();
+      if (typeof generateAllScreenFiles === "function") {
+        generateAllScreenFiles();
+      }
     }
 
     // RECORD GAZE
@@ -934,7 +998,7 @@
         gender: testTakerGender,
         education: testTakerEducation,
         nationality: testTakerNationality,
-        screen_index: screenIndex + 1   // 1..4 corresponding to campaignOrder index
+        screen_index: screenIndex + 1
       });
     }
 
@@ -945,150 +1009,6 @@
       dot.style.top = `${y - 4}px`;
       document.body.appendChild(dot);
       setTimeout(() => dot.remove(), 200);
-    }
-
-    // ---------- PER-SCREEN EXPORTS (16 FILES TOTAL) ----------
-
-    // Generate all files for all 4 screens
-    function generateAllScreenFiles() {
-      // Ensure we have some timestamp even if user never pressed Next/End
-      if (!lastClickTimestamp) {
-        lastClickTimestamp = getCurrentTimeStamp();
-      }
-
-      // map each path to {code: "c01", path: "campaign/c01.JPG", idx: 0..3}
-      const screenEntries = campaignOrder.map((path, idx) => {
-        const fname = path.split("/").pop();     // c01.JPG
-        const code = fname.split(".")[0];        // c01
-        return { code, path, idx };
-      });
-
-      screenEntries.forEach(entry => {
-        const screenNum = entry.idx + 1;
-        const screenData = gazeData.filter(g => g.screen_index === screenNum);
-
-        // c01_gaze_hhmmss.xlsx, c02_gaze_hhmmss.xlsx, ...
-        generateExcelFileForScreen(entry.code, screenData);
-
-        // c01_simple_hhmmss.png, c01_timing_hhmmss.png, c01_density_hhmmss.png, etc.
-        generateHeatmapForScreen(entry.code, screenData, "simple", entry.path);
-        generateHeatmapForScreen(entry.code, screenData, "timing", entry.path);
-        generateHeatmapForScreen(entry.code, screenData, "density", entry.path);
-      });
-    }
-
-    // Excel per screen: c01_gaze_hhmmss.xlsx, ...
-    function generateExcelFileForScreen(code, dataArr) {
-      const data = dataArr.map((g, i) => ({
-        Index: i + 1,
-        Name: g.name,
-        Age: g.age,
-        Gender: g.gender,
-        Education: g.education,
-        Nationality: g.nationality,
-        Screen: g.screen_index,
-        Timestamp: g.timestamp,
-        X: g.x,
-        Y: g.y,
-        'Relative Time (ms)': g.relative
-      }));
-
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Gaze Data');
-
-      XLSX.writeFile(wb, `${code}_gaze_${lastClickTimestamp}.xlsx`);
-    }
-
-    // Heatmaps per screen: c01_simple_hhmmss.png, c01_timing_hhmmss.png, c01_density_hhmmss.png
-    function generateHeatmapForScreen(code, arr, type, path) {
-      const canvas = document.createElement('canvas');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const ctx = canvas.getContext('2d');
-
-      // Load the proper campaign screen as background
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        let filename = `${code}_${type}_${lastClickTimestamp}.png`;
-
-        if (type === "simple") {
-          ctx.globalAlpha = 0.3;
-          ctx.fillStyle = 'red';
-          arr.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
-            ctx.fill();
-          });
-        }
-
-        else if (type === "timing") {
-          ctx.globalAlpha = 0.3;
-          arr.forEach((p, i) => {
-            let progress = (arr.length > 1) ? i / (arr.length - 1) : 0;
-            let r, g, b = 0;
-            if (progress <= 0.5) {
-              r = Math.round(255 * (progress / 0.5));
-              g = 255;
-            } else {
-              r = 255;
-              g = Math.round(255 * (1 - (progress - 0.5) / 0.5));
-            }
-            ctx.fillStyle = `rgb(${r},${g},${b})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
-            ctx.fill();
-          });
-        }
-
-        else if (type === "density") {
-          const dcanvas = document.createElement('canvas');
-          dcanvas.width = canvas.width;
-          dcanvas.height = canvas.height;
-          const dctx = dcanvas.getContext('2d');
-
-          dctx.fillStyle = "black";
-          dctx.globalAlpha = 0.02;
-          arr.forEach(p => {
-            dctx.beginPath();
-            dctx.arc(p.x, p.y, 50, 0, 2 * Math.PI);
-            dctx.fill();
-          });
-
-          let imageData = dctx.getImageData(0, 0, canvas.width, canvas.height);
-          let data = imageData.data;
-
-          let maxAlpha = 1;
-          for (let i = 3; i < data.length; i += 4)
-            if (data[i] > maxAlpha) maxAlpha = data[i];
-
-          for (let i = 0; i < data.length; i += 4) {
-            let alpha = data[i+3];
-            if (alpha > 0) {
-              let norm = alpha / maxAlpha;
-              let r, g;
-              if (norm <= 0.5) { r = Math.round(255*(norm/0.5)); g = 255; }
-              else { r = 255; g = Math.round(255*(1 - (norm-0.5)/0.5)); }
-              data[i] = r; data[i+1] = g; data[i+2] = 0;
-              data[i+3] = Math.round(128 + 127*norm);
-            }
-          }
-
-          dctx.putImageData(imageData, 0, 0);
-          ctx.drawImage(dcanvas, 0, 0);
-        }
-
-        canvas.toBlob(blob => {
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = filename;
-          a.click();
-        });
-      };
-
-      img.src = path;
     }
 
     function updateStatus(msg, className) {
