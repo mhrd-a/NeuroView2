@@ -582,10 +582,10 @@
 
     // Campaign images and order
     let campaignImages = [
-      "campaign/c01.JPG",
-      "campaign/c02.JPG",
-      "campaign/c03.JPG",
-      "campaign/c04.JPG"
+      "campaign/c01.jpg",
+      "campaign/c02.jpg",
+      "campaign/c03.jpg",
+      "campaign/c04.jpg"
     ];
     let campaignOrder = [];
     let screenIndex = 0;
@@ -912,9 +912,9 @@
         lastClickTimestamp = getCurrentTimeStamp();
       }
 
-      // map each path to {code: "c01", path: "campaign/c01.JPG", idx: 0..3}
+      // map each path to {code: "c01", path: "campaign/c01.jpg", idx: 0..3}
       const screenEntries = campaignOrder.map((path, idx) => {
-        const fname = path.split("/").pop();     // c01.JPG
+        const fname = path.split("/").pop();     // c01.jpg
         const code = fname.split(".")[0];        // c01
         return { code, path, idx };
       });
