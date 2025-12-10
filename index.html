@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Eye Tracking Analysis Tool (ZIP Export)</title>
+  <title>Eye Tracking Analysis Tool</title>
   <link rel="icon" href="fav.png" type="image/png" />
+
+  <!-- WebGazer & XLSX -->
   <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- JSZip and FileSaver for ZIP export -->
+
+  <!-- 🔹 JSZip for single ZIP download -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
   <style>
     body {
       font-family: sans-serif;
@@ -229,7 +232,35 @@
       <h2>Visual Attention to Signals in Crowdfunding Decisions</h2>
 
       <p><strong>Introduction</strong><br>
-      You are invited to take part in a research study ... (as before) ...</p>
+      You are invited to take part in a research study conducted by Mehrdad Alikhani, Farinoosh Zarinmakan, and Dr. John B. Ford at Old Dominion University. This study aims to understand how individuals pay attention to different types of information (creator and crowd signals) when making funding decisions on crowdfunding platforms.</p>
+
+      <p><strong>Description of the Research Study</strong><br>
+      If you choose to participate, you will complete a short computer-based activity that uses the webcam to estimate your eye movements while viewing four simulated crowdfunding webpages. The session will take approximately 5–10 minutes to complete. The webcam will be used only to estimate gaze position and will not record or store any video.</p>
+
+      <p><strong>Exclusion Criteria</strong><br>
+      You should have completed a pre-screening questionnaire confirming the following:</p>
+
+      <ul>
+        <li>You are 21 years of age or older.</li>
+        <li>You have normal or corrected-to-normal vision (e.g., glasses or contact lenses).</li>
+        <li>You are comfortable using the computer provided for this study, and its built-in webcam will track your eye movements during the task.</li>
+        <li>You should not have any uncorrected visual impairments or medical conditions that could affect concentration or eye movements.</li>
+      </ul>
+
+      <p><strong>Risks and Benefits</strong><br>
+      The risks associated with this study are minimal and no greater than those encountered in typical computer use. There are no direct benefits to you for participating; however, your participation will contribute to research on decision-making and attention in online crowdfunding environments.</p>
+
+      <p><strong>Confidentiality</strong><br>
+      The study is anonymous. No identifying information will be collected, and no one will be able to link your responses or gaze data to your identity. Data will be stored securely on a password-protected laboratory computer accessible only to the research team.</p>
+
+      <p><strong>Withdrawal Privilege</strong><br>
+      Participation is voluntary. You may skip any part of the activity or stop at any time without penalty.</p>
+
+      <p><strong>Contact Information</strong><br>
+      If you have questions about this study, please contact the researchers as described in the original form.</p>
+
+      <p><strong>Consent Statement</strong><br>
+      By checking the box below and clicking “I Agree to Participate,” you indicate that you have read this information and voluntarily agree to take part in this research study.</p>
 
       <div class="consent-checkbox">
         <input type="checkbox" id="consent-checkbox" />
@@ -277,8 +308,8 @@
         <label for="testerNationality">🌍 Nationality:</label>
         <select id="testerNationality" required>
           <option value="" disabled selected>Select your nationality</option>
+          <!-- (list truncated for brevity) -->
           <option value="american">American</option>
-          <!-- ... etc. truncated for brevity ... -->
         </select>
       </div>
 
@@ -296,8 +327,8 @@
     <!-- INSTRUCTIONS PHASE -->
     <div id="instructions-phase" class="instructions hidden">
       <h2 style="line-height: 1.2; margin: 0 0 4px 0;">How Eye Tracking Works</h2>
-      <p>This tool uses your webcam to track your eye movements.</p>
-      <p>Follow these steps to ensure accurate tracking:</p>
+      <p style="line-height: 1.2; margin: 0;">This tool uses your webcam to track your eye movements.</p>
+      <p style="line-height: 1.2; margin: 0;">Follow these steps to ensure accurate tracking:</p>
       <img src="Instruction.jpg" alt="Eye Tracking Instructions" />
       <div class="button-group">
         <button class="btn btn-secondary" onclick="goBackToSetup()">Back</button>
@@ -311,7 +342,7 @@
     </div>
   </div>
 
-  <!-- NEXT / END BUTTON -->
+  <!-- NEXT / END BUTTON (BOTTOM RIGHT) -->
   <button id="next-screen-btn"
           class="btn"
           style="position: fixed; bottom: 20px; right: 20px; z-index: 3000; display:none;">
@@ -359,9 +390,13 @@
         testTakerEducation = '',
         testTakerNationality = '',
         isWebGazerInitialized = false,
-        lastClickTimestamp = "",
-        zip = null;
+        lastClickTimestamp = "";
 
+    // 🔹 ZIP STATE
+    let zip = null;
+    let zipPromises = [];
+
+    // Campaign images and order
     let campaignImages = [
       "campaign/c01.jpg",
       "campaign/c02.jpg",
@@ -430,8 +465,7 @@
       trackingDuration = parseInt(document.getElementById('durationInput').value) || 60;
 
       gazeData = [];
-      lastClickTimestamp = getCurrentTimeStamp();  // timestamp at start
-      zip = new JSZip();  // initialize ZIP
+      lastClickTimestamp = "";
 
       document.getElementById('instructions-phase').classList.add('hidden');
       document.getElementById('status-display').classList.remove('hidden');
@@ -684,94 +718,72 @@
       }, 1000);
     }
 
-    function stopTracking() {
-      trackingActive = false;
+    // ---------- ZIP-BASED EXPORTS (16 FILES IN ONE ZIP) ----------
 
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
+    function generateAllScreenFilesAsZip() {
+      if (!lastClickTimestamp) {
+        lastClickTimestamp = getCurrentTimeStamp();
       }
 
-      if (typeof webgazer !== 'undefined') {
-        webgazer.pause();
-      }
+      zip = new JSZip();
+      zipPromises = [];
 
-      generateAllScreenFilesToZip()
-        .then(() => {
-          // Remove background screens
-          if (currentImage) { currentImage.remove(); currentImage = null; }
-          if (currentIframe) { currentIframe.remove(); currentIframe = null; }
-
-          const mainContainer = document.querySelector('.container');
-          if (mainContainer) mainContainer.style.display = 'none';
-          document.getElementById('status-display').classList.add('hidden');
-          nextBtn.style.display = "none";
-
-          const finalOverlay = document.createElement("div");
-          finalOverlay.className = "fullscreen-overlay";
-          finalOverlay.style.background = "rgba(0,0,0,0.9)";
-          finalOverlay.innerHTML = `
-            <h1 style="font-size: 3rem; margin-bottom: 20px;">Thank you!</h1>
-            <p style="font-size: 1.4rem; margin: 0 0 10px 0;">You have completed the eye tracking study.</p>
-            <p style="font-size: 1.1rem; margin: 0;">Your data has been saved successfully (ZIP).</p>
-          `;
-          document.body.appendChild(finalOverlay);
-        })
-        .catch(err => {
-          console.error("ZIP generation failed", err);
-        });
-    }
-
-    async function generateAllScreenFilesToZip() {
-      // map each path to {code: "c01", path: "campaign/c01.jpg", idx: 0..3}
       const screenEntries = campaignOrder.map((path, idx) => {
-        const fname = path.split("/").pop();     // c01.jpg
-        const code = fname.split(".")[0];        // c01
+        const fname = path.split("/").pop();
+        const code = fname.split(".")[0];
         return { code, path, idx };
       });
 
-      for (const entry of screenEntries) {
+      screenEntries.forEach(entry => {
         const screenNum = entry.idx + 1;
         const screenData = gazeData.filter(g => g.screen_index === screenNum);
 
-        // Excel file
-        const wb = XLSX.utils.book_new();
-        const data = screenData.map((g, i) => ({
-          Index: i + 1,
-          Name: g.name,
-          Age: g.age,
-          Gender: g.gender,
-          Education: g.education,
-          Nationality: g.nationality,
-          Screen: g.screen_index,
-          Timestamp: g.timestamp,
-          X: g.x,
-          Y: g.y,
-          'Relative Time (ms)': g.relative
-        }));
-        const ws = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, "Gaze Data");
-        const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        zip.file(`${entry.code}_gaze_${lastClickTimestamp}.xlsx`, wbout);
+        addExcelFileForScreen(entry.code, screenData);
+        addHeatmapForScreen(entry.code, screenData, "simple", entry.path);
+        addHeatmapForScreen(entry.code, screenData, "timing", entry.path);
+        addHeatmapForScreen(entry.code, screenData, "density", entry.path);
+      });
 
-        // For each heatmap type: simple, timing, density
-        for (const type of ["simple", "timing", "density"]) {
-          const blob = await createHeatmapBlob(entry.code, screenData, type, entry.path);
-          if (blob) {
-            zip.file(`${entry.code}_${type}_${lastClickTimestamp}.png`, blob);
-          }
-        }
-      }
-
-      // generate and download ZIP
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-      const zipName = `eye_tracking_results_${lastClickTimestamp}.zip`;
-      saveAs(zipBlob, zipName);
+      return Promise.all(zipPromises)
+        .then(() => zip.generateAsync({ type: "blob" }))
+        .then(blob => {
+          const zipName = `eye_tracking_${lastClickTimestamp}.zip`;
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = zipName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        });
     }
 
-    function createHeatmapBlob(code, arr, type, path) {
-      return new Promise((resolve, reject) => {
-        // even if arr is empty, still generate blank heatmap
+    function addExcelFileForScreen(code, dataArr) {
+      const data = dataArr.map((g, i) => ({
+        Index: i + 1,
+        Name: g.name,
+        Age: g.age,
+        Gender: g.gender,
+        Education: g.education,
+        Nationality: g.nationality,
+        Screen: g.screen_index,
+        Timestamp: g.timestamp,
+        X: g.x,
+        Y: g.y,
+        'Relative Time (ms)': g.relative
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Gaze Data');
+
+      // 🔹 Add Excel as binary array to ZIP (no direct download)
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const filename = `${code}_gaze_${lastClickTimestamp}.xlsx`;
+      zip.file(filename, wbout);
+    }
+
+    function addHeatmapForScreen(code, arr, type, path) {
+      const promise = new Promise((resolve) => {
         const canvas = document.createElement('canvas');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -781,6 +793,8 @@
         img.onload = () => {
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
+          const filename = `${code}_${type}_${lastClickTimestamp}.png`;
+
           if (type === "simple") {
             ctx.globalAlpha = 0.3;
             ctx.fillStyle = 'red';
@@ -789,7 +803,8 @@
               ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
               ctx.fill();
             });
-          } else if (type === "timing") {
+          }
+          else if (type === "timing") {
             ctx.globalAlpha = 0.3;
             arr.forEach((p, i) => {
               let progress = (arr.length > 1) ? i / (arr.length - 1) : 0;
@@ -806,7 +821,8 @@
               ctx.arc(p.x, p.y, 30, 0, 2 * Math.PI);
               ctx.fill();
             });
-          } else if (type === "density") {
+          }
+          else if (type === "density") {
             const dcanvas = document.createElement('canvas');
             dcanvas.width = canvas.width;
             dcanvas.height = canvas.height;
@@ -844,15 +860,57 @@
           }
 
           canvas.toBlob(blob => {
-            resolve(blob);
-          });
+            if (blob) {
+              zip.file(filename, blob);
+            }
+            resolve();
+          }, "image/png");
         };
-        img.onerror = (e) => {
-          console.warn("Heatmap image load failed:", e);
-          resolve(null);
+
+        img.onerror = () => {
+          console.error("Failed to load heatmap background:", path);
+          resolve(); // don't block ZIP if one image fails
         };
+
         img.src = path;
       });
+
+      zipPromises.push(promise);
+    }
+
+    // FINAL STOP – generate ZIP + fullscreen thank-you
+    async function stopTracking() {
+      trackingActive = false;
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      if (typeof webgazer !== 'undefined') {
+        webgazer.pause();
+      }
+
+      if (currentImage) { currentImage.remove(); currentImage = null; }
+      if (currentIframe) { currentIframe.remove(); currentIframe = null; }
+
+      const mainContainer = document.querySelector('.container');
+      if (mainContainer) mainContainer.style.display = 'none';
+      document.getElementById('status-display').classList.add('hidden');
+      nextBtn.style.display = "none";
+
+      // 🔹 Generate ZIP with all 16 files
+      await generateAllScreenFilesAsZip();
+
+      const finalOverlay = document.createElement("div");
+      finalOverlay.className = "fullscreen-overlay";
+      finalOverlay.style.background = "rgba(0,0,0,0.9)";
+      finalOverlay.innerHTML = `
+        <h1 style="font-size: 3rem; margin-bottom: 20px;">Thank you!</h1>
+        <p style="font-size: 1.4rem; margin: 0 0 10px 0;">You have completed the eye tracking study.</p>
+        <p style="font-size: 1.1rem; margin: 0;">A ZIP file containing your gaze data and heatmaps has been downloaded.</p>
+      `;
+      document.body.appendChild(finalOverlay);
     }
 
     function recordGazeData(x, y, timestamp) {
